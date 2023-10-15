@@ -48,7 +48,6 @@ if (false) {
 }
 
 // Array[@@species]
-
 if (false) {
 	class Array1 extends Array {
 		static get [Symbol.species]() {
