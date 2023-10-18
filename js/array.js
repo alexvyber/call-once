@@ -1098,107 +1098,647 @@ if (false) {
 }
 
 // Array.fromAsync()
-if (true) {
+if (false) {
 	const asyncIterable = (async function* () {
 		for (let i = 0; i < 5; i++) {
-			console.log(i)
+			console.log(i);
 			await new Promise((resolve) => setTimeout(resolve, 100 * i));
 			yield i;
 		}
 	})();
 
-	 if(Math.random() > 0.5) {
+	if (Math.random() > 0.5) {
 		Array.fromAsync(asyncIterable).then((array) => console.log(array));
-	 
-	 } else {
-		const res = (await Array.fromAsync(asyncIterable))	
-	 console.log("🚀 ~ file: array.js:1115 ~ res:", res)
-	 }
+	} else {
+		const res = await Array.fromAsync(asyncIterable);
+		console.log("🚀 ~ file: array.js:1115 ~ res:", res);
+	}
 
-	 Array.fromAsync(
+	Array.fromAsync(
 		new Map([
-		  [1, 2],
-		  [3, 4],
+			[1, 2],
+			[3, 4],
 		]),
-	  ).then((array) => console.log(array));
-	  // [[1, 2], [3, 4]]
+	).then((array) => console.log(array));
+	// [[1, 2], [3, 4]]
 
-	  Array.fromAsync(
+	Array.fromAsync(
 		new Set([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]),
-	  ).then((array) => console.log(array));
-	  // [1, 2, 3]
+	).then((array) => console.log(array));
+	// [1, 2, 3]
 
-	  Array.fromAsync({
+	Array.fromAsync({
 		length: 3,
 		0: Promise.resolve(1),
 		1: Promise.resolve(2),
 		2: Promise.resolve(3),
-	  }).then((array) => console.log(array));
-	  // [1, 2, 3]
+	}).then((array) => console.log(array));
+	// [1, 2, 3]
 
-	  function delayedValue(v) {
+	function delayedValue(v) {
 		return new Promise((resolve) => setTimeout(() => resolve(v), 100));
-	  }
+	}
 
-	  Array.fromAsync(
+	Array.fromAsync(
 		[delayedValue(1), delayedValue(2), delayedValue(3)],
 		(element) => delayedValue(element * 2),
-	  ).then((array) => console.log(array));
-	  // [2, 4, 6]
+	).then((array) => console.log(array));
+	// [2, 4, 6]
 
-	  function* makeAsyncIterable() {
+	function* makeAsyncIterable() {
 		for (let i = 0; i < 5; i++) {
-		  yield new Promise((resolve) => setTimeout(resolve, 100));
+			yield new Promise((resolve) => setTimeout(resolve, 100));
 		}
-	  }
-	  
-	  (async () => {
+	}
+
+	(async () => {
 		console.time("Array.fromAsync() time");
 		await Array.fromAsync(makeAsyncIterable());
 		console.timeEnd("Array.fromAsync() time");
 		// Array.fromAsync() time: 503.610ms
-	  
+
 		console.time("Promise.all() time");
 		await Promise.all(makeAsyncIterable());
 		console.timeEnd("Promise.all() time");
 		// Promise.all() time: 101.728ms
-	  })();
+	})();
 
-
-	  function* generatorWithRejectedPromises() {
+	function* generatorWithRejectedPromises() {
 		try {
-		  yield 0;
-		  yield Promise.reject(3);
+			yield 0;
+			yield Promise.reject(3);
 		} finally {
-		  console.log("called finally");
+			console.log("called finally");
 		}
-	  }
-	  
-	  (async () => {
-		try {
-		  await Array.fromAsync(generatorWithRejectedPromises());
-		} catch (e) {
-		  console.log("caught", e);
-		}
-	  })();
-	  // caught 3
-	  // No "called finally" message
+	}
 
-	  (async () => {
+	(async () => {
+		try {
+			await Array.fromAsync(generatorWithRejectedPromises());
+		} catch (e) {
+			console.log("caught", e);
+		}
+	})();
+	// caught 3
+	// No "called finally" message
+
+	(async () => {
 		const arr = [];
 		try {
-		  for (const val of generatorWithRejectedPromises()) {
-			arr.push(await val);
-		  }
+			for (const val of generatorWithRejectedPromises()) {
+				arr.push(await val);
+			}
 		} catch (e) {
-		  console.log("caught", e);
+			console.log("caught", e);
 		}
-	  })();
-	  // called finally
-	  // caught 3
-	
+	})();
+	// called finally
+	// caught 3
 }
 
+// Array.prototype.includes()
+if (false) {
+	const array1 = [1, 2, 3];
+
+	console.log(array1.includes(2)); // Expected output: true
+	const pets = ["cat", "dog", "bat"];
+	console.log(pets.includes("cat")); // Expected output: true
+	console.log(pets.includes("at")); // Expected output: false
+
+	[1, 2, 3].includes(2); // true
+	[1, 2, 3].includes(4); // false
+	[1, 2, 3].includes(3, 3); // false
+	[1, 2, 3].includes(3, -1); // true
+	[1, 2, NaN].includes(NaN); // true
+	["1", "2", "3"].includes(3); // false
+
+	let arr = ["a", "b", "c"];
+
+	arr.includes("c", 3); // false
+	arr.includes("c", 100); // false
+
+	// array length is 3
+	// fromIndex is -100
+	// computed index is 3 + (-100) = -97
+
+	arr.includes("a", -100); // true
+	arr.includes("b", -100); // true
+	arr.includes("c", -100); // true
+	arr.includes("a", -2); // false
+
+	console.log([1, , 3].includes(undefined)); // true
+
+	const arrayLike = {
+		length: 3,
+		0: 2,
+		1: 3,
+		2: 4,
+		3: 1, // ignored by includes() since length is 3
+	};
+
+	console.log(Array.prototype.includes.call(arrayLike, 2)); // true
+	console.log(Array.prototype.includes.call(arrayLike, 1)); // false
+}
+
+// Array.prototype.indexOf()
+if (false) {
+	const beasts = ["ant", "bison", "camel", "duck", "bison"];
+
+	console.log(beasts.indexOf("bison")); // Expected output: 1
+
+	// Start from index 2
+	console.log(beasts.indexOf("bison", 2)); // Expected output: 4
+
+	console.log(beasts.indexOf("giraffe")); // Expected output: -1
+
+	const array = [2, 9, 9];
+	const res1 = array.indexOf(2); // 0
+	const res2 = array.indexOf(7); // -1
+	const res3 = array.indexOf(9, 2); // 2
+	const res4 = array.indexOf(2, -1); // -1
+	const res5 = array.indexOf(2, -3); // 0
+
+	console.log(
+		"🚀 ~ file: array.js:1263 ~ res1,res2,res3,res4,res5:",
+		res1,
+		res2,
+		res3,
+		res4,
+		res5,
+	);
+
+	const array1 = [NaN];
+	console.log("🚀 ~ array1.indexOf(NaN):", array1.indexOf(NaN));
+
+	// Finding all the occurrences of an element
+	const indices = [];
+	const array2 = ["a", "b", "a", "c", "a", "d", "a", "f", "a"];
+	const element = "a";
+	let idx = array2.indexOf(element);
+	while (idx !== -1) {
+		indices.push(idx);
+		idx = array2.indexOf(element, idx + 1);
+	}
+	console.log(indices);
+	// [0, 2, 4]
+
+	// Finding if an element exists in the array or not and updating the array
+	function updateVegetablesCollection(veggies, veggie) {
+		if (veggies.indexOf(veggie) === -1) {
+			veggies.push(veggie);
+			console.log(`New veggies collection is: ${veggies}`);
+		} else {
+			console.log(`${veggie} already exists in the veggies collection.`);
+		}
+	}
+
+	const veggies = ["potato", "tomato", "chillies", "green-pepper"];
+
+	updateVegetablesCollection(veggies, "spinach"); // New veggies collection is: potato,tomato,chillies,green-pepper,spinach
+	updateVegetablesCollection(veggies, "spinach"); // spinach already exists in the veggies collection.
+
+	// You cannot use indexOf() to search for empty slots in sparse arrays.
+	console.log([1, , , , , 3].indexOf(undefined)); // -1
+	console.log([1, , , undefined, , 3].indexOf(undefined)); // 3
+
+	const arrayLike = {
+		length: 3,
+		0: 2,
+		1: 3,
+		2: 4,
+		3: 5, // ignored by indexOf() since length is 3
+	};
+
+	console.log(Array.prototype.indexOf.call(arrayLike, 2)); // 0
+	console.log(Array.prototype.indexOf.call(arrayLike, 5)); // -1
+}
+
+// Array.isArray()
+if (false) {
+	console.log(Array.isArray([1, 3, 5])); // Expected output: true
+	console.log(Array.isArray("[]")); // Expected output: false
+	console.log(Array.isArray(new Array(5))); // Expected output: true
+	console.log(Array.isArray(new Int16Array([15, 33]))); // Expected output: false
+
+	// all following calls return true
+
+	Array.isArray([]);
+	console.log("🚀 ~ Array.isArray([]):", Array.isArray([]));
+	Array.isArray([1]);
+	console.log("🚀 ~ Array.isArray([1]):", Array.isArray([1]));
+	Array.isArray(new Array());
+	console.log("🚀 ~ Array.isArray(new Array()):", Array.isArray(new Array()));
+	Array.isArray(new Array("a", "b", "c", "d"));
+	console.log(
+		"🚀 ~ Array.isArray(new Array('a', 'b', 'c', 'd')):",
+		Array.isArray(new Array("a", "b", "c", "d")),
+	);
+	Array.isArray(new Array(3));
+	console.log("🚀 ~ Array.isArray(new Array(3)):", Array.isArray(new Array(3)));
+	// Little known fact: Array.prototype itself is an array:
+	Array.isArray(Array.prototype);
+	Array.isArray(Array);
+	console.log("🚀 ~ Array.isArray(Array):", Array.isArray(Array));
+	console.log(
+		"🚀 ~ Array.isArray(Array.prototype):",
+		Array.isArray(Array.prototype),
+	);
+
+	// all following calls return false
+	Array.isArray();
+	console.log("🚀 ~ Array.isArray():", Array.isArray());
+	Array.isArray({});
+	console.log("🚀 ~ Array.isArray({}):", Array.isArray({}));
+	Array.isArray(null);
+	console.log("🚀 ~ Array.isArray(null):", Array.isArray(null));
+	Array.isArray(undefined);
+	console.log("🚀 ~ Array.isArray(undefined):", Array.isArray(undefined));
+	Array.isArray(17);
+	console.log("🚀 ~ Array.isArray(17):", Array.isArray(17));
+	Array.isArray("Array");
+	console.log("🚀 ~ Array.isArray('Array'):", Array.isArray("Array"));
+	Array.isArray(true);
+	console.log("🚀 ~ Array.isArray(true):", Array.isArray(true));
+	Array.isArray(false);
+	console.log("🚀 ~ Array.isArray(false):", Array.isArray(false));
+	Array.isArray(new Uint8Array(32));
+	console.log(
+		"🚀 ~ Array.isArray(new Uint8Array(32)):",
+		Array.isArray(new Uint8Array(32)),
+	);
+	// This is not an array, because it was not created using the
+	// array literal syntax or the Array constructor
+	Array.isArray({ __proto__: Array.prototype });
+	console.log(
+		"🚀 ~ Array.isArray({ __proto__: Array.prototype }):",
+		Array.isArray({ __proto__: Array.prototype }),
+	);
+
+	const iframe = document.createElement("iframe");
+	document.body.appendChild(iframe);
+	const xArray = window.frames[window.frames.length - 1].Array;
+	const arr = new xArray(1, 2, 3); // [1, 2, 3]
+
+	// instanceof vs. Array.isArray()
+	// When checking for Array instance, Array.isArray() is preferred over instanceof because it works across realms.
+	// Correctly checking for Array
+	Array.isArray(arr); // true
+	// The prototype of arr is xArray.prototype, which is a
+	// different object from Array.prototype
+	arr instanceof Array; // false
+}
+
+// Array.prototype.join()
+if (false) {
+	const elements = ["Fire", "Air", "Water"];
+
+	console.log(elements.join()); // Expected output: "Fire,Air,Water"
+	console.log(elements.join("")); // Expected output: "FireAirWater"
+	console.log(elements.join("-")); // Expected output: "Fire-Air-Water"
+
+	const matrix = [
+		[1, 2, 3],
+		[4, 5, 6],
+		[7, 8, 9],
+	];
+
+	console.log(matrix.join()); // 1,2,3,4,5,6,7,8,9
+	console.log(matrix.join(";")); // 1,2,3;4,5,6;7,8,9
+
+	const arr = [];
+	arr.push(1, [3, arr, 4], 2);
+	console.log(arr.join(";")); // 1;3,,4;2
+
+	const a = ["Wind", "Water", "Fire"];
+	a.join(); // 'Wind,Water,Fire'
+	a.join(", "); // 'Wind, Water, Fire'
+	a.join(" + "); // 'Wind + Water + Fire'
+	a.join(""); // 'WindWaterFire'
+
+	console.log([1, , 3].join()); // '1,,3'
+	console.log([1, undefined, 3].join()); // '1,,3'
+
+	const arrayLike = {
+		length: 3,
+		0: 2,
+		1: 3,
+		2: 4,
+		3: 5, // ignored by join() since length is 3
+	};
+	console.log(Array.prototype.join.call(arrayLike));
+	// 2,3,4
+	console.log(Array.prototype.join.call(arrayLike, "."));
+	// 2.3.4
+}
+
+// Array.prototype.keys()
+if (false) {
+	const array1 = ["a", "b", "c"];
+	const iterator = array1.keys();
+
+	for (const key of iterator) {
+		console.log(key);
+	}
+
+	// Expected output: 0
+	// Expected output: 1
+	// Expected output: 2
+
+	const arr = ["a", , "c"];
+
+	const sparseKeys = Object.keys(arr);
+	console.log(sparseKeys); // ['0', '2']
+
+	const denseKeys = [...arr.keys()];
+	console.log(denseKeys); // [0, 1, 2]
+
+	const arrayLike = {
+		length: 3,
+	};
+
+	for (const entry of Array.prototype.keys.call(arrayLike)) {
+		console.log(entry);
+	}
+	// 0
+	// 1
+	// 2
+}
+
+// Array.prototype.lastIndexOf()
+if (false) {
+	const animals = ["Dodo", "Tiger", "Penguin", "Dodo"];
+
+	console.log(animals.lastIndexOf("Dodo")); // Expected output: 3
+	console.log(animals.lastIndexOf("Tiger")); // Expected output: 1
+
+	const numbers = [2, 5, 9, 2];
+	numbers.lastIndexOf(2); // 3
+	numbers.lastIndexOf(7); // -1
+	numbers.lastIndexOf(2, 3); // 3
+	numbers.lastIndexOf(2, 2); // 0
+	numbers.lastIndexOf(2, -2); // 0
+	numbers.lastIndexOf(2, -1); // 3
+
+	let array = [NaN];
+	array.lastIndexOf(NaN); // -1
+
+	// Finding all the occurrences of an element
+	// The following example uses lastIndexOf to find all the indices of an element in a given array,
+	// using push() to add them to another array as they are found.
+	const indices = [];
+	array = ["a", "b", "a", "c", "a", "d"];
+	const element = "a";
+	let idx = array.lastIndexOf(element);
+
+	while (idx !== -1) {
+		indices.push(idx);
+		idx = idx > 0 ? array.lastIndexOf(element, idx - 1) : -1;
+	}
+
+	console.log(indices);
+	// [4, 2, 0]
+
+	console.log([1, , 3].lastIndexOf(undefined)); // -1
+	console.log([1, , undefined, , , , , , , 3].lastIndexOf(undefined)); // -1
+
+	const arrayLike = {
+		length: 3,
+		0: 2,
+		1: 3,
+		2: 2,
+		3: 5, // ignored by lastIndexOf() since length is 3
+	};
+	console.log(Array.prototype.lastIndexOf.call(arrayLike, 2)); // 2
+	console.log(Array.prototype.lastIndexOf.call(arrayLike, 5)); // -1
+}
+
+// Array.prototype.map()
+if (false) {
+	const numbers = [1, 4, 9];
+	const roots = numbers.map((num) => Math.sqrt(num));
+	console.log("🚀 ~ roots:", roots);
+	const roots1 = numbers.map(Math.sqrt);
+	console.log("🚀 ~ roots1:", roots1);
+	// roots is now     [1, 2, 3]
+	// numbers is still [1, 4, 9]
+
+	const cart = [5, 15, 25];
+	let total = 0;
+	const withTax = cart.map((cost) => {
+		total += cost;
+		return cost * 1.2;
+	});
+	console.log(withTax); // [6, 18, 30]
+	console.log(total); // 45
+
+	const arrayLike = {
+		length: 3,
+		0: 2,
+		1: 3,
+		2: 4,
+		3: 5, // ignored by map() since length is 3
+	};
+	console.log(Array.prototype.map.call(arrayLike, (x) => x ** 2));
+	// [ 4, 9, 16 ]
+
+	// 	Using map() generically on a NodeList
+	// This example shows how to iterate through a collection of objects collected by querySelectorAll.
+	// This is because querySelectorAll returns a NodeList (which is a collection of objects).
+
+	// In this case, we return all the selected options' values on the screen:
+	// const elems = document.querySelectorAll("select option:checked");
+	// const values = Array.prototype.map.call(elems, ({ value }) => value);
+
+	console.log(
+		[1, , 3].map((x, index) => {
+			console.log(`Visit ${index}`);
+			return x * 2;
+		}),
+	);
+
+	["1", "2", "3"].map(parseInt);
+	// parseInt(string, radix) -> map(parseInt(value, index))
+	/* first iteration  (index is 0): */ parseInt("1", 0); // 1
+	/* second iteration (index is 1): */ parseInt("2", 1); // NaN
+	/* third iteration  (index is 2): */ parseInt("3", 2); // NaN
+
+	const returnInt = (element) => parseInt(element, 10);
+
+	["1", "2", "3"].map(returnInt); // [1, 2, 3]
+	// Actual result is an array of numbers (as expected)
+
+	// Same as above, but using the concise arrow function syntax
+	["1", "2", "3"].map((str) => parseInt(str)); // [1, 2, 3]
+
+	// A simpler way to achieve the above, while avoiding the "gotcha":
+	["1", "2", "3"].map(Number); // [1, 2, 3]
+
+	// But unlike parseInt(), Number() will also return a float or (resolved) exponential notation:
+	["1.1", "2.2e2", "3e300"].map(Number); // [1.1, 220, 3e+300]
+
+	// For comparison, if we use parseInt() on the array above:
+	["1.1", "2.2e2", "3e300"].map((str) => parseInt(str)); // [1, 2, 3]
+
+	const strings = ["10", "10", "10"];
+	const numbers1 = strings.map(parseInt);
+
+	console.log(numbers1);
+	// Actual result of [10, NaN, 2] may be unexpected based on the above description.
+
+	const numbers2 = [1, 2, 3, 4];
+	const filteredNumbers = numbers2.map((num, index) => {
+		if (index < 3) {
+			return num;
+		}
+	});
+
+	// index goes from 0, so the filterNumbers are 1,2,3 and undefined.
+	// filteredNumbers is [1, 2, 3, undefined]
+	// numbers is still [1, 2, 3, 4]
+}
+
+// Array.of()
+if (false) {
+	console.log(Array.of("foo", 2, "bar", true)); // Expected output: Array ["foo", 2, "bar", true]
+	console.log(Array.of()); // Expected output: Array []
+
+	Array.of(7); // [7]
+	Array(7); // array of 7 empty slots
+
+	Array.of(1, 2, 3); // [1, 2, 3]
+	Array(1, 2, 3); // [1, 2, 3]
+
+	function NotArray(len) {
+		console.log("NotArray called with length", len);
+	}
+
+	console.log(Array.of.call(NotArray, 1, 2, 3));
+	// NotArray called with length 3
+	// NotArray { '0': 1, '1': 2, '2': 3, length: 3 }
+
+	console.log(Array.of.call(Object)); // [Number: 0] { length: 0 }
+
+	console.log(Array.of.call({}, 1)); // [ 1 ]
+}
+
+// Array.prototype.pop()
+if (false) {
+	const plants = ["broccoli", "cauliflower", "cabbage", "kale", "tomato"];
+
+	console.log(plants.pop()); // Expected output: "tomato"
+	console.log(plants); // Expected output: Array ["broccoli", "cauliflower", "cabbage", "kale"]
+	plants.pop();
+	console.log(plants); // Expected output: Array ["broccoli", "cauliflower", "cabbage"]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		2: 4,
+	};
+	console.log(Array.prototype.pop.call(arrayLike));
+	// 4
+	console.log(arrayLike);
+	// { length: 2, unrelated: 'foo' }
+	console.log(Array.prototype.pop.call(arrayLike));
+	console.log(arrayLike);
+
+	console.log(Array.prototype.pop.call(arrayLike));
+	console.log(arrayLike);
+
+	console.log(Array.prototype.pop.call(arrayLike));
+	console.log(arrayLike);
+
+	const plainObj = {};
+	// There's no length property, so the length is 0
+	Array.prototype.pop.call(plainObj);
+	console.log(plainObj);
+	// { length: 0 }
+
+	// Using an object in an array-like fashion
+	// push and pop are intentionally generic, and we can use that to our advantage — as the following example shows.
+
+	// Note that in this example, we don't create an array to store a collection of objects.
+	// Instead, we store the collection on the object itself and use call on Array.prototype.push and Array.prototype.pop
+	// to trick those methods into thinking we're dealing with an array.
+
+	const collection = {
+		length: 0,
+		addElements(...elements) {
+			// obj.length will be incremented automatically
+			// every time an element is added.
+
+			// Returning what push returns; that is
+			// the new value of length property.
+			return Array.prototype.push.call(this, ...elements);
+		},
+		removeElement() {
+			// obj.length will be decremented automatically
+			// every time an element is removed.
+
+			// Returning what pop returns; that is
+			// the removed element.
+			return Array.prototype.pop.call(this);
+		},
+	};
+
+	collection.addElements(10, 20, 30);
+	console.log("🚀 ~ collection:", collection);
+	console.log(collection.length); // 3
+	collection.removeElement();
+	console.log("🚀 ~ collection:", collection);
+	console.log(collection.length); // 2
+
+	collection.removeElement();
+	console.log("🚀 ~ collection:", collection);
+
+	const l = collection.addElements(100, 200, 300);
+	console.log(collection.length); // 2
+	console.log("🚀 ~ l:", l);
+}
+
+// Array.prototype.push()
+if (true) {
+	const animals = ["pigs", "goats", "sheep"];
+
+	const count = animals.push("cows");
+	console.log(count); // Expected output: 4
+	console.log(animals); // Expected output: Array ["pigs", "goats", "sheep", "cows"]
+
+	animals.push("chickens", "cats", "dogs");
+	console.log(animals); // Expected output: Array ["pigs", "goats", "sheep", "cows", "chickens", "cats", "dogs"]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		2: 4,
+	};
+
+	Array.prototype.push.call(arrayLike, 1, 2);
+	console.log(arrayLike);
+	// { '2': 4, '3': 1, '4': 2, length: 5, unrelated: 'foo' }
+
+	const plainObj = {};
+
+	// There's no length property, so the length is 0
+	Array.prototype.push.call(plainObj, 1, 2);
+	console.log(plainObj);
+	// { '0': 1, '1': 2, length: 2 }
+
+	const obj = {
+		length: 0,
+
+		addElem(elem) {
+			// obj.length is automatically incremented
+			// every time an element is added.
+			Array.prototype.push.call(this, elem);
+		},
+	};
+
+	// Let's add some empty objects just to illustrate.
+	obj.addElem({});
+	obj.addElem({});
+	console.log(obj.length); // 2
+}
 // Array.from()
 // Array.fromAsync()
 // Array.isArray()
