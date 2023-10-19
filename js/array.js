@@ -1697,7 +1697,7 @@ if (false) {
 }
 
 // Array.prototype.push()
-if (true) {
+if (false) {
 	const animals = ["pigs", "goats", "sheep"];
 
 	const count = animals.push("cows");
@@ -1738,6 +1738,572 @@ if (true) {
 	obj.addElem({});
 	obj.addElem({});
 	console.log(obj.length); // 2
+}
+
+// Array.prototype.reduce()
+if (false) {
+	const array1 = [1, 2, 3, 4];
+
+	// 0 + 1 + 2 + 3 + 4
+	const initialValue = { count: 0 };
+
+	const sumWithInitial = array1.reduce(
+		(accumulator, currentValue) => (
+			(accumulator.count += currentValue), accumulator
+		),
+		initialValue,
+	);
+
+	console.log("🚀 ~ initialValue:", initialValue);
+	console.log("🚀 ~ sumWithInitial:", sumWithInitial);
+	// console.log(sumWithInitial); // Expected output: 10
+
+	const pipe =
+		(...functions) =>
+		(initialValue) =>
+			functions.reduce((acc, fn) => fn(acc), initialValue);
+
+	// Building blocks to use for composition
+	const double = (x) => 2 * x;
+	const triple = (x) => 3 * x;
+	const quadruple = (x) => 4 * x;
+
+	// Composed functions for multiplication of specific values
+	const multiply6 = pipe(double, triple);
+	const multiply9 = pipe(triple, triple);
+	const multiply16 = pipe(quadruple, quadruple);
+	const multiply24 = pipe(double, triple, quadruple, double, triple, double);
+
+	// Usage
+	multiply6(6); // 36
+	console.log("🚀 ~ multiply6(6):", multiply6(6));
+	multiply9(9); // 81
+	console.log("🚀 ~ multiply9(9):", multiply9(9));
+	multiply16(16); // 256
+	console.log("🚀 ~ multiply16(16):", multiply16(16));
+	multiply24(10); // 240
+	console.log("🚀 ~ multiply24(10):", multiply24(10));
+
+	// Compare this with pipe: fn(acc) is changed to acc.then(fn),
+	// and initialValue is ensured to be a promise
+	var asyncPipe =
+		(...functions) =>
+		(initialValue) =>
+			functions.reduce(
+				(acc, fn) => acc.then(fn),
+				Promise.resolve(initialValue),
+			);
+
+	// asyncPipe can also be implemented using async/await, which better demonstrates its similarity with pipe:
+	var asyncPipe =
+		(...functions) =>
+		(initialValue) =>
+			functions.reduce(
+				async (acc, fn) =>
+					acc instanceof Promise
+						? (console.log("async"), fn(await acc))
+						: (console.log("sync"), fn(acc)),
+				initialValue,
+			);
+
+	// Building blocks to use for composition
+	const p1 = async (a) => a * 5;
+	const p2 = async (a) => a * 2;
+	// The composed functions can also return non-promises, because the values are
+	// all eventually wrapped in promises
+	const f3 = (a) => a * 3;
+	const p4 = async (a) => a * 4;
+
+	asyncPipe(p1, p2, f3, p4)(10).then(console.log); // 1200
+
+	const res = asyncPipe(p1, p1, p2, f3, f3, p4, p4)(10);
+	res.then(console.log);
+
+	console.log([1, 2, , 4].reduce((a, b) => a + b)); // 7
+	console.log([1, 2, undefined, 4].reduce((a, b) => a + b)); // NaN
+
+	const arrayLike = {
+		length: 3,
+		0: 2,
+		1: 3,
+		2: 4,
+		3: 99, // ignored by reduce() since length is 3
+	};
+	console.log(Array.prototype.reduce.call(arrayLike, (x, y) => x + y));
+	// 9
+
+	//
+	const friends = [
+		{ name: "Anna", books: ["Bible", "Harry Potter"] },
+		{ name: "Bob", books: ["War and peace", "Romeo and Juliet"] },
+		{ name: "Alice", books: ["The Lord of the Rings", "The Shining"] },
+	];
+	// const allBooks = friends.reduce((acc, cur) => [...acc, ...cur.books], []);
+	const allBooks = friends.flatMap((person) => person.books);
+	console.log("🚀 ~ allBooks:", allBooks);
+
+	// const uniqArray = array.reduce(
+	// 	(acc, cur) => (acc.includes(cur) ? acc : [...acc, cur]),
+	// 	[],
+	//   );
+	const array = [1, 2, 3, 4];
+	const uniqArray = Array.from(new Set(array));
+
+	// const allEven = array.reduce((acc, cur) => acc && cur % 2 === 0, true);
+	const allEven = array.every((val) => val % 2 === 0);
+	const res2 = [1, 2, 3, 4].reduce(
+		(acc, current, index, arr) => [acc[0] + current, [...acc[1], index], arr],
+		[0, [], []],
+	);
+	console.log("🚀 ~ res2:", res2);
+}
+
+// Array.prototype.reduceRight()
+if (false) {
+	const array1 = [
+		[0, 1],
+		[2, 3],
+		[4, 5],
+	];
+
+	const result = array1.reduceRight((accumulator, currentValue) =>
+		accumulator.concat(currentValue),
+	);
+
+	console.log(result); // Expected output: Array [4, 5, 2, 3, 0, 1]
+
+	[0, 1, 2, 3, 4].reduceRight((acc, current, index, array) => acc + current);
+
+	// Run a list of asynchronous functions with callbacks in series each passing their results to the next
+	const waterfall =
+		(...functions) =>
+		(callback, ...args) =>
+			functions.reduceRight(
+				(composition, fn) => (...results) => fn(composition, ...results),
+				callback,
+			)(...args);
+
+	const randInt = (max) => Math.floor(Math.random() * max);
+
+	const add5 = (callback, x) => {
+		setTimeout(callback, randInt(1000), x + 5);
+	};
+	const mult3 = (callback, x) => {
+		setTimeout(callback, randInt(1000), x * 3);
+	};
+	const sub2 = (callback, x) => {
+		setTimeout(callback, randInt(1000), x - 2);
+	};
+	const split = (callback, x) => {
+		setTimeout(callback, randInt(1000), x, x);
+	};
+	const add = (callback, x, y) => {
+		setTimeout(callback, randInt(1000), x + y);
+	};
+	const div4 = (callback, x) => {
+		setTimeout(callback, randInt(1000), x / 4);
+	};
+
+	const computation = waterfall(add5, mult3, sub2, split, add, div4);
+	computation(console.log, 5); // Logs 14
+
+	// same as:
+
+	const computation2 = (input, callback) => {
+		const f6 = (x) => div4(callback, x);
+		const f5 = (x, y) => add(f6, x, y);
+		const f4 = (x) => split(f5, x);
+		const f3 = (x) => sub2(f4, x);
+		const f2 = (x) => mult3(f3, x);
+		add5(f2, input);
+	};
+
+	const a = ["1", "2", "3", "4", "5"];
+	const left = a.reduce((prev, cur) => prev + cur);
+	const right = a.reduceRight((prev, cur) => prev + cur);
+
+	console.log(left); // "12345"
+	console.log(right); // "54321"
+
+	const compose =
+		(...args) =>
+		(value) =>
+			args.reduceRight((acc, fn) => fn(acc), value);
+
+	// Increment passed number
+	const inc = (n) => n + 1;
+
+	// Doubles the passed value
+	const double = (n) => n * 2;
+
+	// using composition function
+	console.log(compose(double, inc)(2)); // 6
+
+	// using composition function
+	console.log(compose(inc, double)(2)); // 5
+
+	console.log([1, 2, , 4].reduceRight((a, b) => a + b)); // 7
+	console.log([1, 2, undefined, 4].reduceRight((a, b) => a + b)); // NaN
+
+	const arrayLike = {
+		length: 3,
+		0: 2,
+		1: 3,
+		2: 4,
+		3: 99, // ignored by reduceRight() since length is 3
+	};
+	console.log(Array.prototype.reduceRight.call(arrayLike, (x, y) => x - y));
+	// -1, which is 4 - 3 - 2
+}
+
+// Array.prototype.reverse()
+if (false) {
+	const array1 = ["one", "two", "three"];
+	console.log("array1:", array1); // Expected output: "array1:" Array ["one", "two", "three"]
+
+	const reversed = array1.reverse();
+	console.log("reversed:", reversed); // Expected output: "reversed:" Array ["three", "two", "one"]
+
+	// Careful: reverse is destructive -- it changes the original array.
+	console.log("array1:", array1); // Expected output: "array1:" Array ["three", "two", "one"]
+
+	console.log([1, , 3].reverse()); // [3, empty, 1]
+	console.log([1, , 3, 4].reverse()); // [4, 3, empty, 1]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		2: 4,
+		3: 33, // ignored by reverse() since length is 3
+	};
+	console.log(Array.prototype.reverse.call(arrayLike));
+	// { 0: 4, 3: 33, length: 3, unrelated: 'foo' }
+	// The index 2 is deleted because there was no index 0 present originally
+	// The index 3 is unchanged since the length is 3
+}
+
+// Array.prototype.shift()
+if (false) {
+	const array1 = [1, 2, 3];
+
+	console.log("🚀 ~ array1.shift():", array1.shift());
+	console.log("🚀 ~ array1.shift():", array1.shift());
+	console.log("🚀 ~ array1.shift():", array1.shift());
+	console.log("🚀 ~ array1.shift():", array1, array1.length);
+
+	const myFish = ["angel", "clown", "mandarin", "surgeon"];
+
+	console.log("myFish before:", myFish); // myFish before: ['angel', 'clown', 'mandarin', 'surgeon']
+
+	const shifted = myFish.shift();
+
+	console.log("myFish after:", myFish); // myFish after: ['clown', 'mandarin', 'surgeon']
+	console.log("Removed this element:", shifted); // Removed this element: angel
+
+	const names = ["Andrew", "Tyrone", "Paul", "Maria", "Gayatri"];
+
+	// Using shift() method in while loop
+	let i;
+	while (typeof (i = names.shift()) !== "undefined") {
+		console.log(i);
+		// Andrew, Tyrone, Paul, Maria, Gayatri
+	}
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		2: 4,
+	};
+	console.log(arrayLike); // { '2': 4, length: 2, unrelated: 'foo' }
+	console.log(Array.prototype.shift.call(arrayLike)); // undefined, because it is an empty slot
+	console.log(arrayLike); // { '1': 4, length: 2, unrelated: 'foo' }
+	console.log(Array.prototype.shift.call(arrayLike)); // undefined, because it is an empty slot
+	console.log(arrayLike); // { '0': 4, length: 1, unrelated: 'foo' }
+	console.log(Array.prototype.shift.call(arrayLike)); // 4, because it is an empty slot
+	console.log(arrayLike); // {  length: 0, unrelated: 'foo' }
+
+	const plainObj = {}; // There's no length property, so the length is 0
+	Array.prototype.shift.call(plainObj);
+	console.log(plainObj); // { length: 0 }
+}
+
+// Array.prototype.slice()
+if (false) {
+	const animals = ["ant", "bison", "camel", "duck", "elephant"];
+
+	console.log(animals.slice(2)); // Expected output: Array ["camel", "duck", "elephant"]
+	console.log(animals.slice(2, 4)); // Expected output: Array ["camel", "duck"]
+	console.log(animals.slice(1, 5)); // Expected output: Array ["bison", "camel", "duck", "elephant"]
+	console.log(animals.slice(-2)); // Expected output: Array ["duck", "elephant"]
+	console.log(animals.slice(2, -1)); // Expected output: Array ["camel", "duck"]
+	console.log(animals.slice()); // Expected output: Array ["ant", "bison", "camel", "duck", "elephant"]
+
+	//
+	const fruits = ["Banana", "Orange", "Lemon", "Apple", "Mango"];
+	const citrus = fruits.slice(1, 3);
+
+	// fruits contains ['Banana', 'Orange', 'Lemon', 'Apple', 'Mango']
+	// citrus contains ['Orange','Lemon']
+
+	// Using slice, create newCar from myCar.
+	const myHonda = {
+		color: "red",
+		wheels: 4,
+		engine: { cylinders: 4, size: 2.2 },
+	};
+
+	const myCar = [myHonda, 2, "cherry condition", "purchased 1997"];
+	const newCar = myCar.slice(0, 2);
+
+	console.log("myCar =", myCar);
+	console.log("newCar =", newCar);
+	console.log("myCar[0].color =", myCar[0].color);
+	console.log("newCar[0].color =", newCar[0].color);
+
+	// Change the color of myHonda.
+	myHonda.color = "purple";
+	console.log("The new color of my Honda is", myHonda.color);
+
+	console.log("myCar[0].color =", myCar[0].color);
+	console.log("newCar[0].color =", newCar[0].color);
+
+	const arrayLike = {
+		length: 3,
+		0: 2,
+		1: 3,
+		2: 4,
+		3: 33, // ignored by slice() since length is 3
+	};
+	console.log(Array.prototype.slice.call(arrayLike, 1, 3));
+	// [ 3, 4 ]
+
+	// Using slice() to convert array-like objects to arrays
+	// The slice() method is often used with bind() and call()
+	// to create a utility method that converts an array-like object into an array.
+	// slice() is called with `this` passed as the first argument
+	const slice = Function.prototype.call.bind(Array.prototype.slice);
+
+	function list() {
+		return slice(arguments);
+	}
+
+	const list1 = list(1, 2, 3); // [1, 2, 3]
+	console.log("🚀 ~ list1:", list1);
+
+	console.log([1, 2, , 4, 5].slice(1, 4)); // [2, empty, 4]
+}
+
+// Array.prototype.some()
+if (false) {
+	const array = [1, 2, 3, 4, 5];
+
+	// Checks whether an element is even
+	const even = (element) => element % 2 === 0;
+
+	console.log(array.some(even)); // Expected output: true
+	console.log(array.every(even)); // Expected output: false
+
+	function isBiggerThan10(element, index, array) {
+		return element > 10;
+	}
+
+	[2, 5, 8, 1, 4].some(isBiggerThan10); // false
+	[12, 5, 8, 1, 4].some(isBiggerThan10); // true
+
+	[2, 5, 8, 1, 4].some((x) => x > 10); // false
+	[12, 5, 8, 1, 4].some((x) => x > 10); // true
+
+	const fruits = ["apple", "banana", "mango", "guava"];
+
+	function checkAvailability(arr, val) {
+		return arr.some((arrVal) => val === arrVal);
+	}
+
+	checkAvailability(fruits, "kela"); // false
+	checkAvailability(fruits, "banana"); // true
+
+	const TRUTHY_VALUES = [true, "true", 1];
+
+	function getBoolean(value) {
+		if (typeof value === "string") {
+			value = value.toLowerCase().trim();
+		}
+
+		return TRUTHY_VALUES.some((t) => t === value);
+	}
+
+	getBoolean(false); // false
+	getBoolean("false"); // false
+	getBoolean(1); // true
+	getBoolean("true"); // true
+
+	console.log([1, , 3].some((x) => x === undefined)); // false
+	console.log([1, , 1].some((x) => x !== 1)); // false
+	console.log([1, undefined, 1].some((x) => x !== 1)); // true
+
+	const arrayLike = {
+		length: 3,
+		0: "a",
+		1: "b",
+		2: "c",
+		3: 3, // ignored by some() since length is 3
+	};
+
+	console.log(
+		Array.prototype.some.call(arrayLike, (x) => typeof x === "number"),
+	); // false
+}
+
+// Array.prototype.sort()
+if (false) {
+	const months = ["March", "Jan", "Feb", "Dec"];
+	months.sort();
+	console.log(months);
+	// Expected output: Array ["Dec", "Feb", "Jan", "March"]
+
+	const array1 = [1, 30, 4, 21, 100000];
+	array1.sort();
+	console.log(array1);
+	// Expected output: Array [1, 100000, 21, 30, 4]
+
+	const stringArray = ["Blue", "Humpback", "Beluga"];
+	const numberArray = [40, 1, 5, 200];
+	const numericStringArray = ["80", "9", "700"];
+	const mixedNumericArray = ["80", "9", "700", 40, 1, 5, 200];
+
+	function compareNumbers(a, b) {
+		return a - b;
+	}
+
+	stringArray.join(); // 'Blue,Humpback,Beluga'
+	stringArray.sort(); // ['Beluga', 'Blue', 'Humpback']
+
+	numberArray.join(); // '40,1,5,200'
+	numberArray.sort(); // [1, 200, 40, 5]
+	numberArray.sort(compareNumbers); // [1, 5, 40, 200]
+
+	numericStringArray.join(); // '80,9,700'
+	numericStringArray.sort(); // ['700', '80', '9']
+	numericStringArray.sort(compareNumbers); // ['9', '80', '700']
+
+	mixedNumericArray.join(); // '80,9,700,40,1,5,200'
+	mixedNumericArray.sort(); // [1, 200, 40, 5, '700', '80', '9']
+	mixedNumericArray.sort(compareNumbers); // [1, 5, '9', 40, '80', 200, '700']
+
+	const items = [
+		{ name: "Edward", value: 21 },
+		{ name: "Sharpe", value: 37 },
+		{ name: "And", value: 45 },
+		{ name: "The", value: -12 },
+		{ name: "Magnetic", value: 13 },
+		{ name: "Zeros", value: 37 },
+	];
+
+	// sort by value
+	items.sort((a, b) => a.value - b.value);
+
+	// sort by name
+	items.sort((a, b) => {
+		const nameA = a.name.toUpperCase(); // ignore upper and lowercase
+		const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+		if (nameA < nameB) {
+			return -1;
+		}
+		if (nameA > nameB) {
+			return 1;
+		}
+
+		// names must be equal
+		return 0;
+	});
+
+	const items1 = [
+		"réservé",
+		"premier",
+		"communiqué",
+		"café",
+		"adieu",
+		"éclair",
+	];
+	items1.sort((a, b) => a.localeCompare(b));
+	// items1 is ['adieu', 'café', 'communiqué', 'éclair', 'premier', 'réservé']
+
+	const someSlowOperation = (v) => v;
+
+	// the array to be sorted
+	const data = ["delta", "alpha", "charlie", "bravo"];
+
+	// temporary array holds objects with position and sort-value
+	const mapped = data.map((v, i) => {
+		return { i, value: someSlowOperation(v) };
+	});
+
+	// sorting the mapped array containing the reduced values
+	mapped.sort((a, b) => {
+		if (a.value > b.value) {
+			return 1;
+		}
+		if (a.value < b.value) {
+			return -1;
+		}
+		return 0;
+	});
+	console.log("🚀 ~ mapped:", mapped);
+
+	const result = mapped.map((v) => data[v.i]);
+	console.log("🚀 ~ result:", result);
+
+	// sort() returns the reference to the same array
+	const numbers = [3, 1, 4, 1, 5];
+	const sorted = numbers.sort((a, b) => a - b);
+	// numbers and sorted are both [1, 1, 3, 4, 5]
+	sorted[0] = 10;
+	console.log(numbers[0]); // 10
+
+	console.log(["a", "c", , "b"].sort()); // ['a', 'b', 'c', empty]
+	console.log([, undefined, "a", "b"].sort()); // ["a", "b", undefined, empty]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		0: 5,
+		2: 4,
+	};
+	console.log(Array.prototype.sort.call(arrayLike));
+	// { '0': 4, '1': 5, length: 3, unrelated: 'foo' }
+}
+
+// Array.prototype.splice()
+if (true) {
+	const months = ["Jan", "March", "April", "June"];
+	months.splice(1, 0, "Feb"); // Inserts at index 1
+	console.log(months); // Expected output: Array ["Jan", "Feb", "March", "April", "June"]
+
+	months.splice(4, 1, "May"); // Replaces 1 element at index 4
+	console.log(months); // Expected output: Array ["Jan", "Feb", "March", "April", "May"]
+
+	var myFish = ["angel", "clown", "mandarin", "sturgeon"];
+	var removed = myFish.splice(2, 0, "drum", "guitar");
+
+	// myFish is ["angel", "clown", "drum", "guitar", "mandarin", "sturgeon"]
+	// removed is [], no elements removed
+
+	var myFish = ["angel", "clown", "drum", "mandarin", "sturgeon"];
+	var removed = myFish.splice(3, 1);
+
+	// myFish is ["angel", "clown", "drum", "sturgeon"]
+	// removed is ["mandarin"]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		0: 5,
+		2: 4,
+	};
+	console.log(Array.prototype.splice.call(arrayLike, 0, 1, 2, 3));
+	// [ 5 ]
+	console.log(arrayLike);
+	// { '0': 2, '1': 3, '3': 4, length: 4, unrelated: 'foo' }
 }
 // Array.from()
 // Array.fromAsync()
