@@ -2274,7 +2274,7 @@ if (false) {
 }
 
 // Array.prototype.splice()
-if (true) {
+if (false) {
 	const months = ["Jan", "March", "April", "June"];
 	months.splice(1, 0, "Feb"); // Inserts at index 1
 	console.log(months); // Expected output: Array ["Jan", "Feb", "March", "April", "June"]
@@ -2304,6 +2304,276 @@ if (true) {
 	// [ 5 ]
 	console.log(arrayLike);
 	// { '0': 2, '1': 3, '3': 4, length: 4, unrelated: 'foo' }
+}
+
+// Array.prototype.toLocaleString()
+if (false) {
+	const array1 = [1, "a", new Date("21 Dec 1997 14:12:00 UTC")];
+	const localeString = array1.toLocaleString("en", { timeZone: "UTC" });
+
+	console.log(localeString);
+	// Expected output: "1,a,12/21/1997, 2:12:00 PM",
+	// This assumes "en" locale and UTC timezone - your results may vary
+
+	const prices = ["￥7", 500, 8123, 12];
+	prices.toLocaleString("ja-JP", { style: "currency", currency: "JPY" });
+
+	// "￥7,￥500,￥8,123,￥12"
+
+	console.log([1, , 3].toLocaleString()); // '1,,3'
+
+	const arrayLike = {
+		length: 3,
+		0: 1,
+		1: 2,
+		2: 3,
+		3: 4, // ignored by toLocaleString() since length is 3
+	};
+	console.log(Array.prototype.toLocaleString.call(arrayLike));
+	// 1,2,3
+}
+
+// Array.prototype.toReversed()
+if (false) {
+	const items = [1, 2, 3];
+	console.log(items); // [1, 2, 3]
+
+	const reversedItems = items.toReversed();
+	console.log(reversedItems); // [3, 2, 1]
+	console.log(items); // [1, 2, 3]
+
+	console.log([1, , 3].toReversed()); // [3, undefined, 1]
+	console.log([1, , 3, 4].toReversed()); // [4, 3, undefined, 1]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		2: 4,
+	};
+	console.log(Array.prototype.toReversed.call(arrayLike));
+	// [4, undefined, undefined]
+	// The '0' and '1' indices are not present so they become undefined
+}
+
+// Array.prototype.toSorted()
+if (false) {
+	const months = ["Mar", "Jan", "Feb", "Dec"];
+	const sortedMonths = months.toSorted();
+	console.log(sortedMonths); // ['Dec', 'Feb', 'Jan', 'Mar']
+	console.log(months); // ['Mar', 'Jan', 'Feb', 'Dec']
+
+	const values = [1, 10, 21, 2];
+	const sortedValues = values.toSorted((a, b) => a - b);
+	console.log(sortedValues); // [1, 2, 10, 21]
+	console.log(values); // [1, 10, 21, 2]
+
+	console.log(["a", "c", , "b"].toSorted()); // ['a', 'b', 'c', undefined]
+	console.log([, undefined, "a", "b"].toSorted()); // ["a", "b", undefined, undefined]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		0: 5,
+		2: 4,
+		3: 3, // ignored by toSorted() since length is 3
+	};
+	console.log(Array.prototype.toSorted.call(arrayLike));
+	// [4, 5, undefined]
+}
+
+// Array.prototype.toSpliced()
+if (false) {
+	const months = ["Jan", "Mar", "Apr", "May"];
+
+	// Inserting an element at index 1
+	const months2 = months.toSpliced(1, 0, "Feb");
+	console.log(months2); // ["Jan", "Feb", "Mar", "Apr", "May"]
+
+	// Deleting two elements starting from index 2
+	const months3 = months2.toSpliced(2, 2);
+	console.log(months3); // ["Jan", "Feb", "May"]
+
+	// Replacing one element at index 1 with two new elements
+	const months4 = months3.toSpliced(1, 1, "Feb", "Mar");
+	console.log(months4); // ["Jan", "Feb", "Mar", "May"]
+
+	// Original array is not modified
+	console.log(months); // ["Jan", "Mar", "Apr", "May"]
+
+	const arr = [1, , 3, 4, , 6];
+	console.log(arr.toSpliced(1, 2)); // [1, 4, undefined, 6]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		0: 5,
+		2: 4,
+	};
+	console.log(Array.prototype.toSpliced.call(arrayLike, 0, 1, 2, 3));
+	// [2, 3, undefined, 4]
+}
+
+// Array.prototype.toString()
+if (false) {
+	let array1 = [1, 2, "a", "1a"];
+
+	console.log(array1.toString());
+	// Expected output: "1,2,a,1a"
+
+	const matrix = [
+		[1, 2, 3],
+		[4, 5, 6],
+		[7, 8, 9],
+		[7, [7, [7, [7, 8, 9], 8, 9], 8, 9], 8, 9],
+	];
+
+	console.log(matrix.toString()); // 1,2,3,4,5,6,7,8,9
+
+	const arr = [];
+	arr.push(1, [3, arr, 4], 2);
+	console.log(arr.toString()); // 1,3,,4,2
+
+	array1 = [1, 2, "a", "1a"];
+
+	console.log(array1.toString()); // "1,2,a,1a"
+
+	const someArr = [1, 1, 1, [2, 2, 2]];
+	someArr.join = function () {
+		let res = "";
+		for (const item of this) {
+			if (item instanceof Array) {
+				res += item.join("==");
+				continue;
+			}
+
+			res += `-${item}-`;
+		}
+		return res;
+	};
+
+	console.log("🚀 ~ someArr.toString():", someArr.toString());
+}
+
+// Array.prototype.unshift()
+if (false) {
+	const array1 = [1, 2, 3];
+
+	console.log(array1.unshift(4, 5));
+	// Expected output: 5
+
+	console.log(array1);
+	// Expected output: Array [4, 5, 1, 2, 3]
+
+	let arr = [4, 5, 6];
+
+	arr.unshift(1, 2, 3);
+	console.log(arr);
+	// [1, 2, 3, 4, 5, 6]
+
+	arr = [4, 5, 6]; // resetting the array
+
+	arr.unshift(1);
+	arr.unshift(2);
+	arr.unshift(3);
+
+	console.log(arr);
+	// [3, 2, 1, 4, 5, 6]
+
+	arr = [1, 2];
+
+	arr.unshift(0); // result of the call is 3, which is the new array length
+	// arr is [0, 1, 2]
+
+	arr.unshift(-2, -1); // the new array length is 5
+	// arr is [-2, -1, 0, 1, 2]
+
+	arr.unshift([-4, -3]); // the new array length is 6
+	// arr is [[-4, -3], -2, -1, 0, 1, 2]
+
+	arr.unshift([-7, -6], [-5]); // the new array length is 8
+	// arr is [ [-7, -6], [-5], [-4, -3], -2, -1, 0, 1, 2 ]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		2: 4,
+	};
+
+	Array.prototype.unshift.call(arrayLike, 1, 2);
+	console.log(arrayLike); // { '0': 1, '1': 2, '4': 4, length: 5, unrelated: 'foo' }
+
+	const plainObj = {}; // There's no length property, so the length is 0
+	Array.prototype.unshift.call(plainObj, 1, 2);
+	console.log(plainObj); // { '0': 1, '1': 2, length: 2 }
+}
+
+// Array.prototype.values()
+if (false) {
+	const array1 = ["a", "b", "c"];
+	let iterator = array1.values();
+
+	for (const value of iterator) {
+		console.log(value);
+	}
+
+	// Expected output: "a"
+	// Expected output: "b"
+	// Expected output: "c"
+
+	Array.prototype.values === Array.prototype[Symbol.iterator]; // true
+	console.log(
+		"🚀 ~ Array.prototype.values === Array.prototype[Symbol.iterator]:",
+		Array.prototype.values === Array.prototype[Symbol.iterator],
+	);
+
+	const arr = ["a", "b", "c", "d", "e"];
+	iterator = arr.values();
+	console.log(iterator); // Array Iterator { }
+	console.log(iterator.next().value); // "a"
+	arr[1] = "n";
+	console.log(iterator.next().value); // "n"
+
+	for (const element of [, "a"].values()) {
+		console.log(element);
+	}
+	// undefined
+	// 'a'
+
+	const arrayLike = {
+		length: 3,
+		0: "a",
+		1: "b",
+		2: "c",
+		3: "d", // ignored by values() since length is 3
+	};
+	for (const entry of Array.prototype.values.call(arrayLike)) {
+		console.log(entry);
+	}
+	// a
+	// b
+	// c
+}
+
+if (false) {
+	let arr = [1, 2, 3, 4, 5];
+	console.log(arr.with(2, 666)); // [1, 2, 666, 4, 5]
+	console.log(arr); // [1, 2, 3, 4, 5]
+
+	arr = [1, 2, 3, 4, 5];
+	console.log(arr.with(2, 666).map((x) => x ** 2)); // [1, 4, 36, 16, 25]
+
+	arr = [1, , 3, 4, , 6];
+	console.log(arr.with(0, 2)); // [2, undefined, 3, 4, undefined, 6]
+
+	const arrayLike = {
+		length: 3,
+		unrelated: "foo",
+		0: 5,
+		2: 4,
+		3: 3, // ignored by with() since length is 3
+	};
+	console.log(Array.prototype.with.call(arrayLike, 0, 1));
+	// [ 1, undefined, 4 ]
 }
 // Array.from()
 // Array.fromAsync()
