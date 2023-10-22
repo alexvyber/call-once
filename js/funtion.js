@@ -205,7 +205,7 @@ if (false) {
 }
 
 // Function: name
-if (true) {
+if (false) {
 	const func1 = function () {};
 
 	const object = {
@@ -329,4 +329,395 @@ if (true) {
 	}
 	BarBar.name = "Hello";
 	console.log(BarBar.name); // "Hello" if class BarBar has a static "name" property, but "BarBar" if not.
+}
+
+// Function: prototype
+if (false) {
+	function Ctor() {}
+	const inst = new Ctor();
+	console.log(Object.getPrototypeOf(inst) === Ctor.prototype); // true
+
+	const method = { foo() {} }.foo;
+	const arrowFunction = () => {};
+	async function asyncFunction() {}
+	const asGenFN = async function* asyncGeneratorFunction() {};
+
+	class Class {}
+	function fn() {}
+
+	function Ctor1() {}
+	Ctor1.prototype = 3;
+	console.log(Object.getPrototypeOf(new Ctor1()) === Object.prototype); // true
+
+	function Ctor2() {}
+	const p1 = new Ctor2();
+	const p2 = new Ctor2();
+	const p3 = new Ctor2();
+
+	Ctor2.prototype.prop = 1;
+
+	console.log(p1.prop); // 1
+	console.log(p2.prop); // 1
+	console.log(p3.prop); // 1
+
+	//
+	class Dog {
+		constructor(name) {
+			this.name = name;
+		}
+	}
+	Dog.prototype.species = "dog";
+	console.log(new Dog("Jack").species); // "dog"
+
+	//
+	class Dog1 {
+		static {
+			Dog1.prototype.species = "dog";
+		}
+
+		constructor(name) {
+			this.name = name;
+		}
+	}
+
+	console.log(new Dog1("Jack").species); // "dog"
+}
+
+// Function.prototype[@@hasInstance]()
+if (false) {
+	class Foo {}
+	const foo = new Foo();
+
+	console.log("🚀 ~ foo instanceof Foo:", foo instanceof Foo);
+	console.log(
+		"🚀 ~ Foo[Symbol.hasInstance](foo):",
+		Foo[Symbol.hasInstance](foo),
+	);
+
+	console.log(foo instanceof Foo === Foo[Symbol.hasInstance](foo)); // true
+
+	class Bar {
+		static [Symbol.hasInstance](_value) {
+			// A custom implementation
+			return false;
+		}
+	}
+
+	const bar = new Bar();
+	console.log(bar instanceof Bar); // false
+	console.log(Function.prototype[Symbol.hasInstance].call(Bar, bar)); // true
+}
+
+// Function.prototype.apply()
+if (false) {
+	const numbers = [5, 6, 2, 3, 7];
+	const letters = Array.from({ length: 25 }, (_, i) =>
+		String.fromCharCode(i + 97),
+	);
+
+	numbers.slice(numbers[numbers.length - 1], numbers.length);
+	console.log(
+		"🚀 ~ numbers.slice(numbers[numbers.length - 1], numbers.length):",
+		numbers.slice(numbers[numbers.length - 1], numbers.length),
+	);
+
+	const res1 = Array.prototype.slice.apply(letters, [1, 3]);
+	console.log("🚀 ~ res1:", res1);
+
+	const res2 = Array.prototype.slice.apply(numbers, [1, 3]);
+	console.log("🚀 ~ res2:", res2);
+
+	let max = Math.max.apply(null, numbers);
+	console.log(max); // Expected output: 7
+
+	let min = Math.min.apply(null, numbers);
+	console.log(min); // Expected output: 2
+
+	// TODO: test perf
+	const array = ["a", "b"];
+	const elements = [0, 1, 2];
+
+	Array.prototype.push.apply(array, elements);
+	console.info(array); // ["a", "b", 0, 1, 2]
+
+	//
+	const array1 = ["a", "b"];
+	const elements1 = [0, 1, 2];
+	array1.push(...elements1);
+	console.info(array1); // ["a", "b", 0, 1, 2]
+
+	//
+	// min/max number in an array
+	const numbers3 = [5, 6, 2, 3, 7];
+
+	// using Math.min/Math.max apply
+	max = Math.max.apply(null, numbers3);
+	// This about equal to Math.max(numbers3[0], …)
+	// or Math.max(5, 6, …)
+
+	min = Math.min.apply(null, numbers3);
+
+	// vs. simple loop based algorithm
+	max = -Infinity;
+	min = +Infinity;
+
+	for (let i = 0; i < numbers3.length; i++) {
+		if (numbers3[i] > max) {
+			max = numbers3[i];
+		}
+		if (numbers3[i] < min) {
+			min = numbers3[i];
+		}
+	}
+
+	console.log("🚀 ~ max:", max);
+	console.log("🚀 ~ min:", min);
+
+	function minOfArray(arr) {
+		let min = Infinity;
+		const QUANTUM = 32768;
+
+		for (let i = 0; i < arr.length; i += QUANTUM) {
+			const submin = Math.min.apply(
+				null,
+				arr.slice(i, Math.min(i + QUANTUM, arr.length)),
+			);
+			min = Math.min(submin, min);
+		}
+
+		return min;
+	}
+
+	const min1 = minOfArray([5, 6, 2, 3, 7, -111]);
+	console.log("🚀 ~ min1:", min1);
+}
+
+// Function.prototype.bind()
+if (false) {
+	const module = {
+		x: 420,
+		getX: function () {
+			return this.x;
+		},
+	};
+
+	const unboundGetX = module.getX;
+	// console.log(unboundGetX()); // The function gets invoked at the global scope
+	// Expected output: undefined
+
+	const boundGetX = unboundGetX.bind(module);
+	console.log(boundGetX());
+	// Expected output: 42
+
+	("use strict"); // prevent `this` from being boxed into the wrapper object
+
+	function log(...args) {
+		console.log(this, ...args);
+	}
+	const boundLog = log.bind("this value", 1, 2);
+	const boundLog2 = boundLog.bind("new this value", 3, 4);
+	const boundLog3 = boundLog2.bind("new this value again", 5, 6);
+	boundLog3(69, 420); // "this value", 1, 2, 3, 4, 5, 6
+
+	class Base {
+		constructor(...args) {
+			console.log("🚀 ~ new.target:", new.target);
+			console.log("🚀 ~ this:", this);
+			console.log(new.target === Base);
+			console.log(args);
+		}
+	}
+
+	const BoundBase = Base.bind(null, 1, 2);
+
+	new BoundBase(3, 4); // true, [1, 2, 3, 4]
+
+	// class Derived extends class {}.bind(null) {} // TypeError: Class extends value does not have valid prototype property undefined
+
+	class Base1 {}
+	const BoundBase1 = Base1.bind(null, 1, 2);
+	console.log(new Base1() instanceof BoundBase1); // true
+
+	(function () {
+		// Top-level 'this' is bound to 'globalThis' in scripts.
+		this.x = 9;
+		const module1 = {
+			x: 81,
+			getX() {
+				return this.x;
+			},
+			// construct() {
+			// 	this.getX = this.getX.bind(this);
+			// },
+		};
+
+		const m2 = {
+			x: 6561,
+		};
+
+		// The 'this' parameter of 'getX' is bound to 'module1'.
+		console.log(module1.getX()); // 81
+
+		const retrieveX1 = module1.getX;
+		// The 'this' parameter of 'retrieveX1' is bound to 'globalThis' in non-strict mode.
+		// console.log(retrieveX1()); // 9
+
+		// Create a new function 'boundGetX1' with the 'this' parameter bound to 'module1'.
+		const boundGetX1 = retrieveX1.bind(module1);
+		console.log(boundGetX1()); // 81
+
+		const boundGetX2 = retrieveX1.bind(m2);
+		console.log("🚀 ~ boundGetX2():", boundGetX2());
+	}).bind({ this: {} })();
+
+	class LateBloomer {
+		constructor() {
+			this.petalCount = Math.floor(Math.random() * 12) + 1;
+		}
+		bloom() {
+			// Declare bloom after a delay of 1 second
+			setTimeout(this.declare.bind(this), 1000);
+		}
+		bloomArrow() {
+			// Declare bloom after a delay of 2 second
+			setTimeout(() => this.declare(), 2000);
+		}
+		declare() {
+			console.log(`I am a beautiful flower with ${this.petalCount} petals!`);
+		}
+	}
+
+	const flower = new LateBloomer();
+	flower.bloom();
+	flower.bloomArrow();
+	// After 1 second, calls 'flower.declare()'
+
+	function Point(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	Point.prototype.toString = function () {
+		return `${this.x},${this.y}`;
+	};
+
+	const p = new Point(1, 2);
+	p.toString();
+	// '1,2'
+
+	// The thisArg's value doesn't matter because it's ignored
+	const YAxisPoint = Point.bind(null, 0 /*x*/);
+
+	const axisPoint = new YAxisPoint(5);
+	axisPoint.toString(); // '0,5'
+
+	axisPoint instanceof Point; // true
+	axisPoint instanceof YAxisPoint; // true
+	new YAxisPoint(17, 42) instanceof Point; // true
+
+	class Base2 {
+		static baseProp = "base";
+	}
+
+	class Derived extends Base2 {
+		static derivedProp = "derived";
+	}
+
+	const BoundDerived = Derived.bind(null);
+	console.log(BoundDerived.baseProp); // "base"
+	console.log(BoundDerived.derivedProp); // undefined
+	console.log(new BoundDerived() instanceof Derived); // true
+
+	// Same as "slice" in the previous example
+	const unboundSlice = Array.prototype.slice;
+	const slice = Function.prototype.call.bind(unboundSlice);
+
+	// ...
+
+	slice([1, 2, 3, 4, 5], 0, 1);
+	console.log(
+		"🚀 ~ slice([1, 2, 3, 4, 5], 0, 1):",
+		slice([1, 2, 3, 4, 5], 0, 1),
+	);
+	console.log("🚀 ~ slice([1,2,3,4,5], 2,4):", slice([1, 2, 3, 4, 5], 2, 4));
+}
+
+// Function.prototype.call()
+if (false) {
+	function Product(name, price) {
+		this.name = name;
+		this.price = price;
+	}
+
+	function Food(name, price) {
+		Product.call(this, name, price);
+		this.category = "food";
+	}
+
+	console.log(new Food("cheese", 5).name);
+	// Expected output: "cheese"
+
+	function greet() {
+		console.log(this.animal, "typically sleep between", this.sleepDuration);
+	}
+
+	const obj = {
+		animal: "cats",
+		sleepDuration: "12 and 16 hours",
+	};
+
+	greet.call(obj); // cats typically sleep between 12 and 16 hours
+
+	globalThis.globProp = "Wisen";
+
+	function display() {
+		console.log(`globProp value is ${this.globProp}`);
+	}
+
+	// display.call(); // Logs "globProp value is Wisen"
+
+	// Same as "slice" in the previous example
+	const unboundSlice = Array.prototype.slice;
+	const slice = Function.prototype.call.bind(unboundSlice);
+
+	const res = slice([1, 2, 3, 4, 5, 6], 0, 2);
+	console.log("🚀 ~ res:", res);
+}
+
+// Function.prototype.toString()
+if (true) {
+	function sum(a, b) {
+		return a + b;
+	}
+
+	console.log(sum.toString());
+	// Expected output: "function sum(a, b) {
+	//                     return a + b;
+	//                   }"
+
+	console.log(Math.abs.toString());
+	// Expected output: "function abs() { [native code] }"
+
+	function test(fn) {
+		console.log(fn.toString());
+	}
+
+	function f() {}
+	class A {
+		a() {}
+	}
+	function* g() {}
+
+	test(f); // "function f() {}"
+	test(A); // "class A { a() {} }"
+	test(g); // "function* g() {}"
+	test((a) => a); // "(a) => a"
+	test({ a() {} }.a); // "a() {}"
+	test({ *a() {} }.a); // "*a() {}"
+	test({ [0]() {} }[0]); // "[0]() {}"
+	test(Object.getOwnPropertyDescriptor({ get a() {} }, "a").get); // "get a() {}"
+	test(Object.getOwnPropertyDescriptor({ set a(x) {} }, "a").set); // "set a(x) {}"
+	test(Function.prototype.toString); // "function toString() { [native code] }"
+	test(function f() {}.bind(0)); // "function () { [native code] }"
+	test(Function("a", "b")); // function anonymous(a\n) {\nb\n}
 }
