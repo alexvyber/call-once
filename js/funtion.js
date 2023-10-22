@@ -685,7 +685,7 @@ if (false) {
 }
 
 // Function.prototype.toString()
-if (true) {
+if (false) {
 	function sum(a, b) {
 		return a + b;
 	}
