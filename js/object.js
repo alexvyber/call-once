@@ -645,8 +645,540 @@ if (false) {
 	}
 	{
 		Object.seal(1); // TypeError: 1 is not an object (ES5 code)
+		Object.seal(1); // 1 -- (ES2015 code)
+	}
+}
 
-		Object.seal(1);
-		// 1                             (ES2015 code)
+// Object.keys()
+if (false) {
+	const object1 = {
+		a: "somestring",
+		b: 42,
+		c: false,
+	};
+
+	console.log(Object.keys(object1));
+	// Expected output: Array ["a", "b", "c"]
+
+	// Simple array
+	const arr = ["a", "b", "c"];
+	console.log(Object.keys(arr)); // ['0', '1', '2']
+
+	// Array-like object
+	const obj = { 0: "a", 1: "b", 2: "c" };
+	console.log(Object.keys(obj)); // ['0', '1', '2']
+
+	// Array-like object with random key ordering
+	const anObj = { 100: "a", 2: "b", 7: "c" };
+	console.log(Object.keys(anObj)); // ['2', '7', '100']
+
+	// getFoo is a non-enumerable property
+	const myObj = Object.create(
+		{},
+		{
+			getFoo: {
+				value() {
+					return this.foo;
+				},
+			},
+		},
+	);
+	myObj.foo = 1;
+	console.log(Object.keys(myObj)); // ['foo']
+
+	// Strings have indices as enumerable own properties
+	console.log(Object.keys("foo")); // ['0', '1', '2']
+
+	// Other primitives have no own properties
+	console.log(Object.keys(100)); // []
+}
+
+// Object.preventExtensions()
+if (false) {
+	const object1 = {};
+
+	Object.preventExtensions(object1);
+
+	try {
+		Object.defineProperty(object1, "property1", {
+			value: 42,
+		});
+	} catch (e) {
+		console.log(e.message);
+		// Expected output: TypeError: Cannot define property property1, object is not extensible
+	}
+
+	{
+		const obj = {};
+		const obj2 = Object.preventExtensions(obj);
+		obj === obj2; // true
+
+		// Objects are extensible by default.
+		const empty = {};
+		Object.isExtensible(empty); // true
+
+		// They can be made un-extensible
+		Object.preventExtensions(empty);
+		Object.isExtensible(empty); // false
+
+		// Object.defineProperty throws when adding
+		// a new property to a non-extensible object.
+		const nonExtensible = { removable: true };
+		Object.preventExtensions(nonExtensible);
+
+		try {
+			Object.defineProperty(nonExtensible, "new", {
+				value: 8675309,
+			}); // throws a TypeError
+		} catch (error) {
+			console.log("error:", error.message);
+		}
+
+		// In strict mode, attempting to add new properties
+		// to a non-extensible object throws a TypeError.
+		function fail() {
+			"use strict";
+			// throws a TypeError
+			nonExtensible.newProperty = "FAIL";
+		}
+
+		try {
+			fail();
+		} catch (error) {
+			console.log("error:", error.message);
+		}
+
+		try {
+			const fixed = Object.preventExtensions({});
+			// fixed.__proto__ = { oh: "hai" }; // throws a 'TypeError'.
+			fixed.prototype = { oh: "hai" }; //  throws a 'TypeError'.
+		} catch (error) {
+			console.error("🚀 ~ error:", error.message);
+		}
+	}
+
+	{
+		Object.preventExtensions(1);
+		// TypeError: 1 is not an object (ES5 code)
+		// 1 (ES2015 code)
+
+		console.log(
+			"🚀 ~ Object.preventExtensions(1):",
+			Object.preventExtensions(1),
+		);
+	}
+}
+
+// Object.defineProperties()
+if (true) {
+	const object1 = {};
+
+	Object.defineProperties(object1, {
+		property1: {
+			value: 42,
+			writable: true,
+		},
+		property2: {},
+	});
+
+	console.log("🚀 ~ object1.property1:", object1.property1); // Expected output: 42
+	object1.property1 = 69;
+	console.log("🚀 ~ object1.property1:", object1.property1);
+
+	try {
+		const obj = {};
+
+		Object.defineProperties(obj, {
+			one: {
+				value() {
+					return Math.random();
+				},
+				writable: false,
+				enumerable: true,
+			},
+		});
+
+		console.log("🚀 ~ Object.keys(obj):", Object.keys(obj));
+
+		obj.one = () => "other";
+	} catch (error) {
+		console.error("🚀 ~ error:", error.message);
+	}
+}
+
+// Object.defineProperty()
+if (true) {
+	try {
+		const object1 = {};
+
+		Object.defineProperty(object1, "property1", {
+			value: 42,
+			writable: false,
+		});
+
+		object1.property1 = 77; // Throws an error in strict mode
+		console.log(object1.property1); // Expected output: 42
+	} catch (error) {
+		console.log("🚀 ~ error:", error.message);
+	}
+	{
+		const obj = {};
+		// 1. Using a null prototype: no inherited properties
+		const descriptor = Object.create(null);
+		descriptor.value = "static";
+
+		// not enumerable, not configurable, not writable as defaults
+		Object.defineProperty(obj, "key", descriptor);
+		console.log("🚀 ~ obj:", obj);
+
+		// 2. Being explicit by using a throw-away object literal with all attributes present
+		Object.defineProperty(obj, "key2", {
+			enumerable: false,
+			configurable: false,
+			writable: false,
+			value: "static",
+		});
+		console.log("🚀 ~ obj:", obj);
+
+		// 3. Recycling same object
+		function withValue(value) {
+			const d =
+				withValue.d ||
+				(withValue.d = {
+					enumerable: false,
+					writable: false,
+					configurable: false,
+					value,
+				});
+
+			// avoiding duplicate operation for assigning value
+			if (d.value !== value) d.value = value;
+
+			return d;
+		}
+		// and
+		const more = Object.defineProperty(obj, "key", withValue("static"));
+		console.log("🚀 ~ more:", more);
+
+		// if freeze is available, prevents adding or
+		// removing the object prototype properties
+		// (value, get, set, enumerable, writable, configurable)
+		const res = (Object.freeze || Object)(Object.prototype);
+		console.log("🚀 ~ res:", res);
+	}
+	{
+		const o = {}; // Creates a new object
+
+		// Example of an object property added
+		// with defineProperty with a data property descriptor
+		const res = Object.defineProperty(o, "a", {
+			value: 37,
+			writable: true,
+			enumerable: true,
+			configurable: true,
+		});
+		console.log("🚀 ~ res:", res);
+		// 'a' property exists in the o object and its value is 37
+	}
+	{
+		const o = {}; // Creates a new object
+		// Example of an object property added
+		// with defineProperty with an accessor property descriptor
+		let bValue = 38;
+		console.log("🚀 ~ bValue:", bValue);
+		Object.defineProperty(o, "b", {
+			get() {
+				return bValue;
+			},
+			set(newValue) {
+				bValue = newValue;
+			},
+			enumerable: true,
+			configurable: true,
+		});
+		o.b; // 38
+		console.log("🚀 ~ o.b:", o.b);
+		o.b = 49;
+		console.log("🚀 ~ o.b:", o.b);
+		console.log("🚀 ~ bValue:", bValue);
+		// 'b' property exists in the o object and its value is 38
+		// The value of o.b is now always identical to bValue,
+		// unless o.b is redefined
+	}
+	try {
+		const o = {}; // Creates a new object
+
+		// You cannot try to mix both:
+		Object.defineProperty(o, "conflict", {
+			value: 0x9f91102,
+			get() {
+				return 0xdeadbeef;
+			},
+		});
+		// throws a TypeError: value appears
+		// only in data descriptors,
+		// get appears only in accessor descriptors
+	} catch (error) {
+		console.error("🚀 ~ error:", error.message);
+	}
+
+	try {
+		const o = {}; // Creates a new object
+
+		Object.defineProperty(o, "a", {
+			value: 37,
+			writable: false,
+		});
+
+		console.log(o.a); // 37
+		o.a = 25; // No error thrown
+		// (it would throw in strict mode,
+		// even if the value had been the same)
+		console.log(o.a); // 37; the assignment didn't work
+	} catch (error) {
+		console.error("🚀 ~ error:", error.message);
+	}
+	try {
+		// strict mode
+		(() => {
+			"use strict";
+			const o = {};
+			Object.defineProperty(o, "b", {
+				value: 2,
+				writable: false,
+			});
+			o.b = 3; // throws TypeError: "b" is read-only
+			return o.b; // returns 2 without the line above
+		})();
+	} catch (error) {
+		console.error("🚀 ~ error:", error.message);
+	}
+	{
+		const o = {};
+		Object.defineProperty(o, "a", {
+			value: 1,
+			enumerable: true,
+		});
+		Object.defineProperty(o, "b", {
+			value: 2,
+			enumerable: false,
+		});
+		Object.defineProperty(o, "c", {
+			value: 3,
+		}); // enumerable defaults to false
+		o.d = 4; // enumerable defaults to true when creating a property by setting it
+		Object.defineProperty(o, Symbol.for("e"), {
+			value: 5,
+			enumerable: true,
+		});
+		Object.defineProperty(o, Symbol.for("f"), {
+			value: 6,
+			enumerable: false,
+		});
+
+		for (const i in o) {
+			console.log(i);
+		}
+		// Logs 'a' and 'd' (always in that order)
+
+		Object.keys(o); // ['a', 'd']
+
+		// biome-ignore format: should not be formatted
+		console.log("🚀 ~ o.propertyIsEnumerable('a') :", o.propertyIsEnumerable('a') ) // true
+		// biome-ignore format: should not be formatted
+		console.log("🚀 ~ o.propertyIsEnumerable('b') :", o.propertyIsEnumerable('b') ) // false
+		// biome-ignore format: should not be formatted
+		console.log("🚀 ~ o.propertyIsEnumerable('c') :", o.propertyIsEnumerable('c') ) // false
+		// biome-ignore format: should not be formatted
+		console.log("🚀 ~ o.propertyIsEnumerable('d') :", o.propertyIsEnumerable('d') ) // true
+		// biome-ignore format: should not be formatted
+		console.log("🚀 ~ o.propertyIsEnumerable(Symbol.for('e')) :", o.propertyIsEnumerable(Symbol.for('e')) ) // true
+		// biome-ignore format: should not be formatted
+		console.log("🚀 ~ o.propertyIsEnumerable(Symbol.for('f')) :", o.propertyIsEnumerable(Symbol.for('f')) ) // false
+
+		const p = { ...o };
+		console.log("🚀 ~ p.a:", p.a); // 1
+		console.log("🚀 ~ p.b:", p.b); // undefined
+		console.log("🚀 ~ p.c:", p.c); // undefined
+		console.log("🚀 ~ p.d:", p.d); // 4
+		console.log("🚀 ~ p[Symbol.for('e')]:", p[Symbol.for("e")]); // 5
+		console.log("🚀 ~ p[Symbol.for('f')]:", p[Symbol.for("f")]); // undefined
+	}
+	try {
+		const o = {};
+		Object.defineProperty(o, "a", {
+			get() {
+				return 1;
+			},
+			configurable: false,
+		});
+
+		Object.defineProperty(o, "a", {
+			configurable: true,
+		}); // throws a TypeError
+		Object.defineProperty(o, "a", {
+			enumerable: true,
+		}); // throws a TypeError
+		Object.defineProperty(o, "a", {
+			set() {},
+		}); // throws a TypeError (set was undefined previously)
+		Object.defineProperty(o, "a", {
+			get() {
+				return 1;
+			},
+		}); // throws a TypeError
+		// (even though the new get does exactly the same thing)
+		Object.defineProperty(o, "a", {
+			value: 12,
+		}); // throws a TypeError
+		// ('value' can be changed when 'configurable' is false, but only when the prop.erty is a writable data property)
+
+		console.log(o.a); // 1
+		delete o.a; // Nothing happens; throws an error in strict mode
+		console.log(o.a); // 1
+	} catch (error) {
+		console.error("🚀 ~ error:", error.message);
+	}
+	try {
+		const o = {};
+		Object.defineProperty(o, "b", {
+			writable: true,
+			configurable: false,
+		});
+		console.log(o.b); // undefined
+		Object.defineProperty(o, "b", {
+			value: 1,
+		}); // Even when configurable is false, because the object is writable, we may still replace the value
+		console.log(o.b); // 1
+		o.b = 2; // We can change the value with assignment operators as well
+		console.log(o.b); // 2
+		// Toggle the property's writability
+		Object.defineProperty(o, "b", {
+			writable: false,
+		});
+		Object.defineProperty(o, "b", {
+			value: 1,
+		}); // TypeError: because the property is neither writable nor configurable, it cannot be modified
+		// At this point, there's no way to further modify 'b'
+		// or restore its writability
+	} catch (error) {
+		console.log("🚀 ~ error:", error.message);
+	}
+	try {
+		const o = {};
+		Object.defineProperty(o, "b", {
+			writable: false,
+			configurable: true,
+		});
+		Object.defineProperty(o, "b", {
+			value: 1,
+		}); // We can replace the value with defineProperty
+		console.log(o.b); // 1
+		o.b = 2; // throws TypeError in strict mode: cannot change a non-writable property's value with assignment
+	} catch (error) {
+		console.log("🚀 ~ error:", error.message);
+	}
+	{
+		function Archiver() {
+			let temperature = null;
+			const archive = [];
+
+			Object.defineProperty(this, "temperature", {
+				get() {
+					console.log("get!");
+					return temperature;
+				},
+				set(value) {
+					temperature = value;
+					archive.push({ val: temperature });
+				},
+			});
+
+			this.getArchive = () => archive;
+		}
+
+		const arc = new Archiver();
+		arc.temperature; // 'get!'
+		arc.temperature = 11;
+		arc.temperature = 13;
+		arc.temperature = 37;
+		arc.getArchive(); // [{ val: 11 }, { val: 13 }]
+		console.log("🚀 ~ arc.getArchive():", arc.getArchive());
+	}
+	{
+		const pattern = {
+			get() {
+				return "I always return this string, whatever you have assigned";
+			},
+			set() {
+				this.myname = "this is my name string";
+			},
+		};
+
+		function TestDefineSetAndGet() {
+			Object.defineProperty(this, "myproperty", pattern);
+		}
+
+		const instance = new TestDefineSetAndGet();
+		instance.myproperty = "test";
+
+		console.log(instance.myproperty); // I always return this string, whatever you have assigned
+		console.log(instance.myname); // this is my name string
+	}
+	{
+		function MyClass() {}
+
+		let value;
+		Object.defineProperty(MyClass.prototype, "x", {
+			get() {
+				return value;
+			},
+			set(x) {
+				value = x;
+			},
+		});
+
+		const a = new MyClass();
+		const b = new MyClass();
+		a.x = 1;
+		console.log(b.x); // 1
+	}
+	{
+		function MyClass() {}
+
+		Object.defineProperty(MyClass.prototype, "x", {
+			get() {
+				return this.storedX;
+			},
+			set(x) {
+				this.storedX = x;
+			},
+		});
+
+		const a = new MyClass();
+		const b = new MyClass();
+		a.x = 1;
+		console.log(b.x); // undefined
+	}
+	{
+		function MyClass() {}
+
+		MyClass.prototype.x = 1;
+		Object.defineProperty(MyClass.prototype, "y", {
+			writable: false,
+			value: 1,
+		});
+
+		const a = new MyClass();
+		a.x = 2;
+		console.log(a.x); // 2
+		console.log(MyClass.prototype.x); // 1
+		try {
+			a.y = 2; // Ignored, throws in strict mode
+			console.log(a.y); // 1
+			console.log(MyClass.prototype.y); // 1
+		} catch (error) {
+			console.error("🚀 ~ error:", error.message);
+		}
 	}
 }
