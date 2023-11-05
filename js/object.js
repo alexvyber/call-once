@@ -44,18 +44,9 @@ if (false) {
 	const o = new TypeError(); // Inheritance: TypeError -> Error -> Object
 	const proto = Object.getPrototypeOf;
 
-	console.log(
-		"🚀 ~ proto(o).constructor === TypeError:",
-		proto(o).constructor === TypeError,
-	);
-	console.log(
-		"🚀 ~ proto(proto(o)).constructor === Error:",
-		proto(proto(o)).constructor === Error,
-	);
-	console.log(
-		"🚀 ~ proto(proto(proto(o))).constructor === Object:",
-		proto(proto(proto(o))).constructor === Object,
-	);
+	console.log("🚀 ~ proto(o).constructor === TypeError:", proto(o).constructor === TypeError);
+	console.log("🚀 ~ proto(proto(o)).constructor === Error:", proto(proto(o)).constructor === Error);
+	console.log("🚀 ~ proto(proto(proto(o))).constructor === Object:", proto(proto(proto(o))).constructor === Object);
 
 	function Tree(name) {
 		this.name = name;
@@ -347,10 +338,7 @@ if (false) {
 	console.log("🚀 ~ Object.is('foo', 'foo'):", Object.is("foo", "foo"));
 	console.log("🚀 ~ Object.is('foo', 'bar'):", Object.is("foo", "bar"));
 	console.log("🚀 ~ Object.is(null, null):", Object.is(null, null));
-	console.log(
-		"🚀 ~ Object.is(undefined, undefined):",
-		Object.is(undefined, undefined),
-	);
+	console.log("🚀 ~ Object.is(undefined, undefined):", Object.is(undefined, undefined));
 
 	// Object.is(window, window); // true
 	console.log("🚀 ~ Object.is([], []):", Object.is([], []));
@@ -440,12 +428,7 @@ if (false) {
 	{
 		const object1 = { a: 1, b: 2, c: 3 };
 
-		const object2 = Object.fromEntries(
-			Object.entries(object1).map(([key, val]) => [
-				`${key}${key}`,
-				Math.pow(val, 3),
-			]),
-		);
+		const object2 = Object.fromEntries(Object.entries(object1).map(([key, val]) => [`${key}${key}`, Math.pow(val, 3)]));
 
 		console.log(object2);
 		// { a: 2, b: 4, c: 6 }
@@ -762,15 +745,12 @@ if (false) {
 		// TypeError: 1 is not an object (ES5 code)
 		// 1 (ES2015 code)
 
-		console.log(
-			"🚀 ~ Object.preventExtensions(1):",
-			Object.preventExtensions(1),
-		);
+		console.log("🚀 ~ Object.preventExtensions(1):", Object.preventExtensions(1));
 	}
 }
 
 // Object.defineProperties()
-if (true) {
+if (false) {
 	const object1 = {};
 
 	Object.defineProperties(object1, {
@@ -807,7 +787,7 @@ if (true) {
 }
 
 // Object.defineProperty()
-if (true) {
+if (false) {
 	try {
 		const object1 = {};
 
@@ -1180,5 +1160,969 @@ if (true) {
 		} catch (error) {
 			console.error("🚀 ~ error:", error.message);
 		}
+	}
+}
+
+// Object.prototype.valueOf()
+if (false) {
+	{
+		function MyNumberType(n) {
+			this.number = n;
+		}
+
+		MyNumberType.prototype.valueOf = function () {
+			return this.number;
+		};
+
+		const object1 = new MyNumberType(4);
+
+		console.log(object1 + 3);
+		// Expected output: 7
+	}
+	{
+		class MyNumber {
+			constructor(number) {
+				this.number = number;
+			}
+			static {
+				this.prototype.valueOf = function () {
+					return this.number * 3;
+				};
+			}
+		}
+		const object1 = new MyNumber(3);
+		console.log("🚀 ~ object1:", object1 + 3);
+	}
+	{
+		class MyNumber {
+			constructor(arg) {
+				this.arg = arg;
+			}
+			static {
+				this.prototype.valueOf = function () {
+					return Math.random();
+				};
+			}
+		}
+
+		const object1 = new MyNumber(3);
+		console.log("🚀 ~ object1:", object1 + new Date());
+	}
+	{
+		class Box {
+			#value;
+			constructor(value) {
+				this.#value = value;
+			}
+			valueOf() {
+				return this.#value;
+			}
+		}
+
+		const box = new Box(123);
+		console.log(box + 456); // 579
+		console.log(box == 123); // true
+	}
+	{
+		console.log("🚀 ~ +new Date():", +new Date()); // the current timestamp; same as new Date().getTime()
+		console.log("🚀 ~ +{}:", +{}); // NaN (toString() returns "[object Object]")
+		console.log("🚀 ~ +[]:", +[]); // 0 (toString() returns an empty string list)
+		console.log("🚀 ~ +[1]:", +[1]); // 1 (toString() returns "1")
+		console.log("🚀 ~ +[1, 2]:", +[1, 2]); // NaN (toString() returns "1,2")
+		console.log("🚀 ~ +new Set([1]):", +new Set([1])); // NaN (toString() returns "[object Set]")
+		console.log("🚀 ~ +{ valueOf: () => 42 }:", +{ valueOf: () => 42 }); // 42
+	}
+}
+
+// Object.prototype.toString()
+if (false) {
+	function Dog(name) {
+		this.name = name;
+	}
+
+	const dog1 = new Dog("Gabby");
+
+	Dog.prototype.toString = function dogToString() {
+		return `${this.name}!`;
+	};
+
+	console.log(dog1.toString());
+	// Expected output: "Gabby"
+
+	const arr = [1, 2, 3];
+
+	console.log("🚀 ~ arr.toString():", arr.toString()); // "1,2,3"
+
+	console.log("🚀 ~ Object.prototype.toString.call(arr):", Object.prototype.toString.call(arr)); // "[object Array]"
+	{
+		class Dog {
+			constructor(name, breed, color, sex) {
+				this.name = name;
+				this.breed = breed;
+				this.color = color;
+				this.sex = sex;
+			}
+		}
+
+		const theDog = new Dog("Gabby", "Lab", "chocolate", "female");
+
+		console.log("🚀 ~ theDog.toString():", theDog.toString()); // "[object Object]"
+		console.log("🚀 ~ `${theDog}`:", `${theDog}`); // "[object Object]"
+	}
+	{
+		class Dog {
+			constructor(name, breed, color, sex) {
+				this.name = name;
+				this.breed = breed;
+				this.color = color;
+				this.sex = sex;
+			}
+			toString() {
+				return `Dog ${this.name} is a ${this.sex} ${this.color} ${this.breed}`;
+			}
+		}
+
+		const theDog = new Dog("Gabby", "Lab", "chocolate", "female");
+
+		console.log("🚀 ~ `${theDog}`:", `${theDog}`); // "Dog Gabby is a female chocolate Lab"
+	}
+	{
+		const toString = Object.prototype.toString;
+
+		toString.call(new Date()); // [object Date]
+		toString.call(new String()); // [object String]
+		// Math has its Symbol.toStringTag
+		toString.call(Math); // [object Math]
+
+		toString.call(undefined); // [object Undefined]
+		toString.call(null); // [object Null]
+
+		const myDate = new Date();
+		Object.prototype.toString.call(myDate); // [object Date]
+
+		myDate[Symbol.toStringTag] = "myDate";
+		Object.prototype.toString.call(myDate); // [object myDate]
+
+		Date.prototype[Symbol.toStringTag] = "prototype polluted";
+		Object.prototype.toString.call(new Date()); // [object prototype polluted]
+	}
+}
+
+// Object.prototype.toLocaleString()
+if (false) {
+	const date1 = new Date(Date.UTC(2012, 11, 20, 3, 0, 0));
+
+	console.log(date1.toLocaleString("ar-EG"));
+	// Expected output: "٢٠‏/١٢‏/٢٠١٢ ٤:٠٠:٠٠ ص"
+
+	const number1 = 123456.789;
+
+	console.log(number1.toLocaleString("de-DE"));
+	// Expected output: "123.456,789"
+
+	console.log(number1.toLocaleString("ru-RU"));
+	// 123 456,789
+}
+
+// Object.freeze()
+if (false) {
+	{
+		const obj = {
+			prop: 42,
+		};
+
+		Object.freeze(obj);
+
+		try {
+			obj.prop = 33;
+			// Throws an error in strict mode
+		} catch (error) {
+			console.log("🚀 ~ error:", error.message);
+		}
+
+		console.log(obj.prop);
+		// Expected output: 42
+	}
+	try {
+		Object.freeze(new Uint8Array(0)); // No elements
+		// Uint8Array []
+
+		Object.freeze(new Uint8Array(1)); // Has elements
+		// TypeError: Cannot freeze array buffer views with elements
+
+		Object.freeze(new DataView(new ArrayBuffer(32))); // No elements
+		// DataView {}
+
+		Object.freeze(new Float64Array(new ArrayBuffer(64), 63, 0)); // No elements
+		// Float64Array []
+
+		Object.freeze(new Float64Array(new ArrayBuffer(64), 32, 2)); // Has elements
+		// TypeError: Cannot freeze array buffer views with elements
+	} catch (error) {
+		console.log("🚀 ~ error:", error.message);
+	}
+
+	try {
+		const obj = {
+			prop() {},
+			foo: "bar",
+		};
+
+		// Before freezing: new properties may be added,
+		// and existing properties may be changed or removed
+		obj.foo = "baz";
+		obj.lumpy = "woof";
+		delete obj.prop;
+
+		// Freeze.
+		const o = Object.freeze(obj);
+
+		// The return value is just the same object we passed in.
+		o === obj; // true
+
+		// The object has become frozen.
+		Object.isFrozen(obj); // === true
+
+		// Now any changes will fail
+		obj.foo = "quux"; // silently does nothing
+
+		// silently doesn't add the property
+		obj.quaxxor = "the friendly duck";
+
+		// In strict mode such attempts will throw TypeErrors
+		function fail() {
+			"use strict";
+			obj.foo = "sparky"; // throws a TypeError
+			delete obj.foo; // throws a TypeError
+			delete obj.quaxxor; // returns true since attribute 'quaxxor' was never added
+			obj.sparky = "arf"; // throws a TypeError
+		}
+
+		fail();
+
+		// Attempted changes through Object.defineProperty;
+		// both statements below throw a TypeError.
+		Object.defineProperty(obj, "ohai", { value: 17 });
+		Object.defineProperty(obj, "foo", { value: "eit" });
+
+		// It's also impossible to change the prototype
+		// both statements below will throw a TypeError.
+		Object.setPrototypeOf(obj, { x: 20 });
+		obj.__proto__ = { x: 20 };
+	} catch (error) {
+		console.log("🚀 ~ error:", error.message);
+	}
+
+	try {
+		const a = [0];
+		Object.freeze(a); // The array cannot be modified now.
+
+		a[0] = 1; // fails silently
+
+		// In strict mode such attempt will throw a TypeError
+		function fail() {
+			"use strict";
+			a[0] = 1;
+		}
+
+		fail();
+
+		// Attempted to push
+		a.push(2); // throws a TypeError
+	} catch (error) {
+		console.log("🚀 ~ error:", error.message);
+	}
+	{
+		const obj1 = {
+			internal: {},
+		};
+
+		Object.freeze(obj1);
+		obj1.internal.a = "aValue";
+
+		obj1.internal.a; // 'aValue'
+	}
+	{
+		const employee = {
+			name: "Mayank",
+			designation: "Developer",
+			address: {
+				street: "Rohini",
+				city: "Delhi",
+			},
+		};
+
+		Object.freeze(employee);
+
+		// employee.name = "Dummy"; // fails silently in non-strict mode
+		employee.address.city = "Noida"; // attributes of child object can be modified
+
+		console.log(employee.address.city); // "Noida"
+	}
+	{
+		function deepFreeze(object) {
+			// Retrieve the property names defined on object
+			const propNames = Reflect.ownKeys(object);
+
+			// Freeze properties before freezing self
+			for (const name of propNames) {
+				const value = object[name];
+
+				if ((value && typeof value === "object") || typeof value === "function") {
+					deepFreeze(value);
+				}
+			}
+
+			return Object.freeze(object);
+		}
+
+		const obj2 = {
+			internal: {
+				a: null,
+			},
+		};
+
+		deepFreeze(obj2);
+
+		try {
+			obj2.internal.a = "anotherValue"; // fails silently in non-strict mode
+		} catch (error) {
+			console.log("🚀 ~ error:", error.message);
+		}
+
+		console.log("🚀 ~ obj2.internal.a:", obj2.internal.a); // null
+	}
+}
+
+// Object.fromEntries()
+if (false) {
+	{
+		const entries = new Map([
+			["foo", "bar"],
+			["baz", 42],
+			["buz", (_) => _],
+		]);
+
+		const obj = Object.fromEntries(entries);
+
+		console.log(obj);
+		// Expected output: Object { foo: "bar", baz: 42 }
+	}
+	{
+		const map = new Map([
+			["foo", "bar"],
+			["baz", 42],
+			["buz", (_) => _],
+		]);
+
+		const obj = Object.fromEntries(map);
+		console.log(obj); // { foo: "bar", baz: 42 }
+	}
+	{
+		const arr = [
+			["0", "a"],
+			["1", "b"],
+			["2", "c"],
+			["length", 3],
+		];
+		const obj = Object.fromEntries(arr);
+		console.log(obj); // { 0: "a", 1: "b", 2: "c" }
+
+		console.log(Array.from(obj));
+	}
+	{
+		const object1 = { a: 1, b: 2, c: 3 };
+
+		const object2 = Object.fromEntries(Object.entries(object1).map(([key, val]) => [key, val * 2]));
+
+		console.log(object2);
+		// { a: 2, b: 4, c: 6 }
+	}
+}
+
+// Object.hasOwn()
+if (false) {
+	const object1 = {
+		prop: "exists",
+	};
+
+	console.log(Object.hasOwn(object1, "prop"));
+	// Expected output: true
+
+	console.log(Object.hasOwn(object1, "toString"));
+	// Expected output: false
+
+	console.log(Object.hasOwn(object1, "undeclaredPropertyValue"));
+	// Expected output: false
+
+	{
+		const example = {};
+		Object.hasOwn(example, "prop"); // false - 'prop' has not been defined
+
+		example.prop = "exists";
+		Object.hasOwn(example, "prop"); // true - 'prop' has been defined
+
+		example.prop = null;
+		Object.hasOwn(example, "prop"); // true - own property exists with value of null
+
+		example.prop = undefined;
+		Object.hasOwn(example, "prop"); // true - own property exists with value of undefined
+	}
+	{
+		const example = {};
+		example.prop = "exists";
+
+		// `hasOwn` will only return true for direct properties:
+		Object.hasOwn(example, "prop"); // true
+		Object.hasOwn(example, "toString"); // false
+		Object.hasOwn(example, "hasOwnProperty"); // false
+
+		// The `in` operator will return true for direct or inherited properties:
+
+		console.log("🚀 ~ 'prop' in example:", "prop" in example); // true
+		console.log("🚀 ~ 'toString' in example:", "toString" in example); // true
+		console.log("🚀 ~ 'hasOwnProperty' in example:", "hasOwnProperty" in example); // true
+	}
+	if (false) {
+		const example = { foo: true, bar: true };
+		for (const name of Object.keys(example)) {
+			console.log("🚀 ~ name:", name);
+		}
+	}
+	{
+		const example = { foo: true, bar: true };
+		for (const name in example) {
+			if (Object.hasOwn(example, name)) {
+				// console.log("🚀 ~ name:", name);
+			}
+
+			console.log("🚀 ~ name:", name);
+		}
+	}
+	{
+		const fruits = ["Apple", "Banana", "Watermelon", "Orange"];
+
+		console.log("🚀 ~ Object.hasOwn(fruits, 3):", Object.hasOwn(fruits, 3)); // true ('Orange')
+		console.log("🚀 ~ Object.hasOwn(fruits, 4):", Object.hasOwn(fruits, 4)); // false - not defined
+	}
+	{
+		const foo = Object.create(null);
+		foo.prop = "exists";
+		if (Object.hasOwn(foo, "prop")) {
+			console.log(foo.prop); // true - works irrespective of how the object is created.
+		}
+	}
+}
+
+// Object.prototype.hasOwnProperty()
+if (false) {
+	{
+		const object1 = {};
+		object1.property1 = 42;
+
+		console.log(object1.hasOwnProperty("property1"));
+		// Expected output: true
+
+		console.log(object1.hasOwnProperty("toString"));
+		// Expected output: false
+
+		console.log(object1.hasOwnProperty("hasOwnProperty"));
+		// Expected output: false
+	}
+
+	{
+		const fruits = ["Apple", "Banana", "Watermelon", "Orange"];
+		fruits.hasOwnProperty(3); // true ('Orange')
+		fruits.hasOwnProperty(4); // false - not defined
+	}
+
+	{
+		const example = {};
+		example.hasOwnProperty("prop"); // false
+
+		example.prop = "exists";
+		example.hasOwnProperty("prop"); // true - 'prop' has been defined
+
+		example.prop = null;
+		example.hasOwnProperty("prop"); // true - own property exists with value of null
+
+		example.prop = undefined;
+		example.hasOwnProperty("prop"); // true - own property exists with value of undefined
+	}
+
+	{
+		const example = {};
+		example.prop = "exists";
+
+		// `hasOwnProperty` will only return true for direct properties:
+		example.hasOwnProperty("prop"); // true
+		example.hasOwnProperty("toString"); // false
+		example.hasOwnProperty("hasOwnProperty"); // false
+
+		// The `in` operator will return true for direct or inherited properties:
+		"prop" in example; // true
+		"toString" in example; // true
+		"hasOwnProperty" in example; // true
+	}
+
+	{
+		const buz = {
+			fog: "stack",
+		};
+
+		for (const name in buz) {
+			if (buz.hasOwnProperty(name)) {
+				console.log(`this is fog (${name}) for sure. Value: ${buz[name]}`);
+			} else {
+				console.log(name); // toString or something else
+			}
+		}
+	}
+
+	{
+		const foo = {
+			hasOwnProperty() {
+				return false;
+			},
+			bar: "Here be dragons",
+		};
+
+		foo.hasOwnProperty("bar"); // re-implementation always returns false
+	}
+
+	{
+		const foo = { bar: "Here be dragons" };
+
+		// Use Object.hasOwn() method - recommended
+		Object.hasOwn(foo, "bar"); // true
+
+		// Use the hasOwnProperty property from the Object prototype
+		Object.prototype.hasOwnProperty.call(foo, "bar"); // true
+
+		// Use another Object's hasOwnProperty
+		// and call it with 'this' set to foo
+		({}).hasOwnProperty.call(foo, "bar"); // true
+	}
+}
+
+// Object.getPrototypeOf()
+if (false) {
+	{
+		const prototype1 = {};
+		const object1 = Object.create(prototype1);
+
+		console.log(Object.getPrototypeOf(object1) === prototype1);
+		// Expected output: true
+	}
+
+	{
+		const proto = {};
+		const obj = Object.create(proto);
+		Object.getPrototypeOf(obj) === proto; // true
+	}
+
+	{
+		Object.getPrototypeOf("foo");
+		// TypeError: 'foo' is not an object (ES5 code)
+		Object.getPrototypeOf("foo");
+		// String.prototype                  (ES2015 code)
+
+		console.log("🚀 ~ Object.getPrototypeOf('foo'):", Object.getPrototypeOf("foo") === String.prototype);
+	}
+}
+
+// Object.isExtensible()
+if (false) {
+	{
+		const object1 = {};
+
+		console.log(Object.isExtensible(object1)); // Expected output: true
+
+		Object.preventExtensions(object1);
+
+		console.log(Object.isExtensible(object1)); // Expected output: false
+	}
+
+	{
+		// New objects are extensible.
+		const empty = {};
+
+		console.log("🚀 ~ Object.isExtensible(empty):", Object.isExtensible(empty)); // true
+
+		// They can be made un-extensible
+		Object.preventExtensions(empty);
+		console.log("🚀 ~ Object.isExtensible(empty):", Object.isExtensible(empty)); // false
+
+		// Sealed objects are by definition non-extensible.
+		const sealed = Object.seal({});
+		console.log("🚀 ~ Object.isExtensible(sealed):", Object.isExtensible(sealed)); // false
+
+		// Frozen objects are also by definition non-extensible.
+		const frozen = Object.freeze({});
+		console.log("🚀 ~ Object.isExtensible(frozen):", Object.isExtensible(frozen)); // false
+	}
+
+	{
+		Object.isExtensible(1); // TypeError: 1 is not an object (ES5 code)
+
+		console.log("🚀 ~ Object.isExtensible(1):", Object.isExtensible(1)); // false (ES2015 code)
+	}
+}
+
+// Object.isFrozen()
+if (false) {
+	{
+		const object1 = {
+			property1: 42,
+		};
+
+		console.log(Object.isFrozen(object1));
+		// Expected output: false
+
+		Object.freeze(object1);
+
+		console.log(Object.isFrozen(object1));
+		// Expected output: true
+	}
+
+	try {
+		// A new object is extensible, so it is not frozen.
+		Object.isFrozen({}); // false
+
+		// An empty object which is not extensible
+		// is vacuously frozen.
+		const vacuouslyFrozen = Object.preventExtensions({});
+		Object.isFrozen(vacuouslyFrozen); // true
+
+		// A new object with one property is also extensible,
+		// ergo not frozen.
+		const oneProp = { p: 42 };
+		Object.isFrozen(oneProp); // false
+
+		// Preventing extensions to the object still doesn't
+		// make it frozen, because the property is still
+		// configurable (and writable).
+		Object.preventExtensions(oneProp);
+		Object.isFrozen(oneProp); // false
+
+		// Deleting that property makes the object vacuously frozen.
+		delete oneProp.p;
+		Object.isFrozen(oneProp); // true
+
+		// A non-extensible object with a non-writable
+		// but still configurable property is not frozen.
+		const nonWritable = { e: "plep" };
+		Object.preventExtensions(nonWritable);
+		Object.defineProperty(nonWritable, "e", {
+			writable: false,
+		}); // make non-writable
+		Object.isFrozen(nonWritable); // false
+
+		// Changing that property to non-configurable
+		// then makes the object frozen.
+		Object.defineProperty(nonWritable, "e", {
+			configurable: false,
+		}); // make non-configurable
+		Object.isFrozen(nonWritable); // true
+
+		// A non-extensible object with a non-configurable
+		// but still writable property also isn't frozen.
+		const nonConfigurable = { release: "the kraken!" };
+		Object.preventExtensions(nonConfigurable);
+		Object.defineProperty(nonConfigurable, "release", {
+			configurable: false,
+		});
+		Object.isFrozen(nonConfigurable); // false
+
+		// Changing that property to non-writable
+		// then makes the object frozen.
+		Object.defineProperty(nonConfigurable, "release", {
+			writable: false,
+		});
+		Object.isFrozen(nonConfigurable); // true
+
+		// A non-extensible object with a configurable
+		// accessor property isn't frozen.
+		const accessor = {
+			get food() {
+				return "yum";
+			},
+		};
+		Object.preventExtensions(accessor);
+		Object.isFrozen(accessor); // false
+
+		// When we make that property non-configurable it becomes frozen.
+		Object.defineProperty(accessor, "food", {
+			configurable: false,
+		});
+		Object.isFrozen(accessor); // true
+
+		// But the easiest way for an object to be frozen
+		// is if Object.freeze has been called on it.
+		const frozen = { 1: 81 };
+		Object.isFrozen(frozen); // false
+		Object.freeze(frozen);
+		Object.isFrozen(frozen); // true
+
+		// By definition, a frozen object is non-extensible.
+		Object.isExtensible(frozen); // false
+
+		// Also by definition, a frozen object is sealed.
+		Object.isSealed(frozen); // true
+	} catch (error) {
+		console.log("🚀 ~ error:", error.message);
+	}
+	{
+		Object.isFrozen(1);
+		// TypeError: 1 is not an object (ES5 code)
+
+		Object.isFrozen(1);
+		// true                          (ES2015 code)
+	}
+}
+
+// Object.prototype.isPrototypeOf()
+if (false) {
+	{
+		function Foo() {}
+		function Bar() {}
+
+		Bar.prototype = Object.create(Foo.prototype);
+
+		const bar = new Bar();
+
+		console.log(Foo.prototype.isPrototypeOf(bar));
+		// Expected output: true
+		console.log(Bar.prototype.isPrototypeOf(bar));
+		// Expected output: true
+	}
+
+	{
+		class Foo {}
+		class Bar extends Foo {}
+		class Baz extends Bar {}
+
+		const foo = new Foo();
+		const bar = new Bar();
+		const baz = new Baz();
+
+		// prototype chains:
+		// foo: Foo --> Object
+		// bar: Bar --> Foo --> Object
+		// baz: Baz --> Bar --> Foo --> Object
+		console.log(Baz.prototype.isPrototypeOf(baz)); // true
+		console.log(Baz.prototype.isPrototypeOf(bar)); // false
+		console.log(Baz.prototype.isPrototypeOf(foo)); // false
+		console.log(Bar.prototype.isPrototypeOf(baz)); // true
+		console.log(Bar.prototype.isPrototypeOf(foo)); // false
+		console.log(Foo.prototype.isPrototypeOf(baz)); // true
+		console.log(Foo.prototype.isPrototypeOf(bar)); // true
+		console.log(Object.prototype.isPrototypeOf(baz)); // true
+	}
+
+	{
+		class Foo {
+			#value = "foo";
+			static getValue(x) {
+				return x.#value;
+			}
+			static isFoo(x) {
+				return #value in x;
+			}
+		}
+
+		const baz = { __proto__: Foo.prototype };
+
+		if (Foo.isFoo(baz)) {
+			// Doesn't run, because baz is not a Foo
+			console.log(Foo.getValue(baz));
+		}
+	}
+}
+
+// Object.isSealed()
+if (false) {
+	{
+		const object1 = {
+			property1: 42,
+		};
+
+		console.log(Object.isSealed(object1));
+		// Expected output: false
+
+		Object.seal(object1);
+
+		console.log(Object.isSealed(object1));
+		// Expected output: true
+	}
+
+	{
+		// Objects aren't sealed by default.
+		const empty = {};
+		Object.isSealed(empty); // false
+
+		// If you make an empty object non-extensible,
+		// it is vacuously sealed.
+		Object.preventExtensions(empty);
+		Object.isSealed(empty); // true
+
+		// The same is not true of a non-empty object,
+		// unless its properties are all non-configurable.
+		const hasProp = { fee: "fie foe fum" };
+		Object.preventExtensions(hasProp);
+		Object.isSealed(hasProp); // false
+
+		// But make them all non-configurable
+		// and the object becomes sealed.
+		Object.defineProperty(hasProp, "fee", {
+			configurable: false,
+		});
+		Object.isSealed(hasProp); // true
+
+		// The easiest way to seal an object, of course,
+		// is Object.seal.
+		const sealed = {};
+		Object.seal(sealed);
+		Object.isSealed(sealed); // true
+
+		// A sealed object is, by definition, non-extensible.
+		Object.isExtensible(sealed); // false
+
+		// A sealed object might be frozen,
+		// but it doesn't have to be.
+		Object.isFrozen(sealed); // true
+		// (all properties also non-writable)
+
+		const s2 = Object.seal({ p: 3 });
+		Object.isFrozen(s2); // false
+		// ('p' is still writable)
+
+		const s3 = Object.seal({
+			get p() {
+				return 0;
+			},
+		});
+		Object.isFrozen(s3); // true
+		// (only configurability matters for accessor properties)
+	}
+
+	{
+		Object.isSealed(1);
+		// TypeError: 1 is not an object (ES5 code)
+
+		Object.isSealed(1);
+		// true                          (ES2015 code)
+	}
+}
+
+// Object.prototype.propertyIsEnumerable()
+if (false) {
+	{
+		const object1 = {};
+		const array1 = [];
+		object1.property1 = 42;
+		array1[0] = 42;
+
+		console.log(object1.propertyIsEnumerable("property1"));
+		// Expected output: true
+
+		console.log(array1.propertyIsEnumerable(0));
+		// Expected output: true
+
+		console.log(array1.propertyIsEnumerable("length"));
+		// Expected output: false
+	}
+
+	{
+		const o = {};
+		const a = [];
+		o.prop = "is enumerable";
+		a[0] = "is enumerable";
+
+		o.propertyIsEnumerable("prop"); // true
+		a.propertyIsEnumerable(0); // true
+	}
+
+	{
+		const a = ["is enumerable"];
+
+		a.propertyIsEnumerable(0); // true
+		a.propertyIsEnumerable("length"); // false
+
+		Math.propertyIsEnumerable("random"); // false
+		// globalThis.propertyIsEnumerable("Math"); // false
+	}
+
+	{
+		const o1 = {
+			enumerableInherited: "is enumerable",
+		};
+		Object.defineProperty(o1, "nonEnumerableInherited", {
+			value: "is non-enumerable",
+			enumerable: false,
+		});
+
+		const o2 = {
+			// o1 is the prototype of o2
+			__proto__: o1,
+			enumerableOwn: "is enumerable",
+		};
+
+		Object.defineProperty(o2, "nonEnumerableOwn", {
+			value: "is non-enumerable",
+			enumerable: false,
+		});
+
+		console.log("🚀 ~ o2.propertyIsEnumerable('enumerableInherited'):", o2.propertyIsEnumerable("enumerableInherited")); // false
+		console.log(
+			"🚀 ~ o2.propertyIsEnumerable('nonEnumerableInherited'):",
+			o2.propertyIsEnumerable("nonEnumerableInherited"),
+		); // false
+		console.log("🚀 ~ o2.propertyIsEnumerable('enumerableOwn'):", o2.propertyIsEnumerable("enumerableOwn")); // true
+		console.log("🚀 ~ o2.propertyIsEnumerable('nonEnumerableOwn'):", o2.propertyIsEnumerable("nonEnumerableOwn")); // false
+	}
+
+	{
+		const sym = Symbol("enumerable");
+		const sym2 = Symbol("non-enumerable");
+		const o = {
+			[sym]: "is enumerable",
+		};
+		Object.defineProperty(o, sym2, {
+			value: "is non-enumerable",
+			enumerable: false,
+		});
+
+		console.log("🚀 ~ o.propertyIsEnumerable(sym):", o.propertyIsEnumerable(sym)); // true
+		console.log("🚀 ~ o.propertyIsEnumerable(sym2):", o.propertyIsEnumerable(sym2)); // false
+	}
+
+	{
+		const o = {
+			__proto__: null,
+			enumerableOwn: "is enumerable",
+		};
+
+		// console.log("🚀 ~ o.propertyIsEnumerable('enumerableOwn'):", o.propertyIsEnumerable("enumerableOwn")); // TypeError: o.propertyIsEnumerable is not a function
+		console.log(
+			"🚀 ~ Object.prototype.propertyIsEnumerable.call(o, 'enumerableOwn'):",
+			Object.prototype.propertyIsEnumerable.call(o, "enumerableOwn"),
+		); // true
+	}
+
+	{
+		const o = {
+			__proto__: null,
+			enumerableOwn: "is enumerable",
+		};
+
+		console.log(
+			"🚀 ~ Object.getOwnPropertyDescriptor(o, 'enumerableOwn')?.enumerable:",
+			Object.getOwnPropertyDescriptor(o, "enumerableOwn")?.enumerable,
+		); // true
+		console.log(
+			"🚀 ~ Object.getOwnPropertyDescriptor(o, 'nonExistent')?.enumerable:",
+			Object.getOwnPropertyDescriptor(o, "nonExistent")?.enumerable,
+		); // undefined
 	}
 }
