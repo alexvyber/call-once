@@ -23,18 +23,9 @@ if (false) {
 	arr1[2] = "string";
 	console.log("🚀 ~ file: array.js:19 ~ arr1:", arr1);
 
-	console.log(
-		"🚀 ~ file: array.js:22 ~ 0 in arr1 || '0' in arr1:",
-		0 in arr1 || "0" in arr1,
-	);
-	console.log(
-		"🚀 ~ file: array.js:24 ~ 1 in arr1 || '1' in arr1:",
-		1 in arr1 || "1" in arr1,
-	);
-	console.log(
-		"🚀 ~ file: array.js:24 ~ 2 in arr1 || '2' in arr1:",
-		2 in arr1 || "2" in arr1,
-	);
+	console.log("🚀 ~ file: array.js:22 ~ 0 in arr1 || '0' in arr1:", 0 in arr1 || "0" in arr1);
+	console.log("🚀 ~ file: array.js:24 ~ 1 in arr1 || '1' in arr1:", 1 in arr1 || "1" in arr1);
+	console.log("🚀 ~ file: array.js:24 ~ 2 in arr1 || '2' in arr1:", 2 in arr1 || "2" in arr1);
 
 	console.log("🚀 ~ file: array.js:19 ~ 2 in arr1:", 2 in arr1);
 	console.log("🚀 ~ file: array.js:21 ~ '2' in arr1:", "2" in arr1);
@@ -194,9 +185,7 @@ if (false) {
 	};
 	console.log(Array.prototype.concat.call(arrayLike, 3, 4)); // [1, 2, 3, 4]
 
-	console.log(
-		[0].concat([1], 2, 3).concat([4], 5, 6, 7, 8).concat(9).concat(10),
-	);
+	console.log([0].concat([1], 2, 3).concat([4], 5, 6, 7, 8).concat(9).concat(10));
 }
 
 // Array.prototype.copyWithin()
@@ -411,23 +400,14 @@ if (false) {
 
 // Array.prototype.filter()
 if (false) {
-	let words = [
-		"spray",
-		"limit",
-		"elite",
-		"exuberant",
-		"destruction",
-		"present",
-	];
+	let words = ["spray", "limit", "elite", "exuberant", "destruction", "present"];
 
 	const result = words.filter((word) => word.length > 6);
 
 	console.log(result); // Expected output: Array ["exuberant", "destruction", "present"]
 
 	//
-	const array = [
-		-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 17, 19, 23, 29,
-	];
+	const array = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 17, 19, 23, 29];
 
 	function isPrime(num) {
 		for (let i = 2; num > i; i++) {
@@ -545,11 +525,7 @@ if (false) {
 	//
 	let letters = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-	const res = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function (
-		item,
-		index,
-		arr,
-	) {
+	const res = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function (item, index, arr) {
 		if (this[index]) {
 			this[index] = `${index}-${this[index]}`;
 		}
@@ -652,9 +628,7 @@ if (false) {
 		3: 6,
 		4: 420.69, // ignored by filter() since length is 5
 	};
-	console.log(
-		Array.prototype.find.call(arrayLike, (x) => !Number.isInteger(x)),
-	);
+	console.log(Array.prototype.find.call(arrayLike, (x) => !Number.isInteger(x)));
 	// 7.3
 }
 
@@ -691,12 +665,7 @@ if (false) {
 	};
 	console.log(
 		Array.prototype.findIndex.call(
-			Math.random() > 0.5
-				? Object.assign(
-						{ ...arrayLike },
-						{ "-3": 0.1, 1: 1, 3: 5.5, length: 4 },
-				  )
-				: arrayLike,
+			Math.random() > 0.5 ? Object.assign({ ...arrayLike }, { "-3": 0.1, 1: 1, 3: 5.5, length: 4 }) : arrayLike,
 			function (x) {
 				console.log(this);
 				return !Number.isInteger(x);
@@ -723,9 +692,7 @@ if (false) {
 		2: 44,
 		3: 3, // ignored by findLast() since length is 3
 	};
-	console.log(
-		Array.prototype.findLast.call(arrayLike, (x) => Number.isInteger(x)),
-	); // 44
+	console.log(Array.prototype.findLast.call(arrayLike, (x) => Number.isInteger(x))); // 44
 }
 
 // Array.prototype.findLastIndex()
@@ -762,9 +729,7 @@ if (false) {
 		2: 4,
 		3: 3, // ignored by findLastIndex() since length is 3
 	};
-	console.log(
-		Array.prototype.findLastIndex.call(arrayLike, (x) => Number.isInteger(x)),
-	); // 2
+	console.log(Array.prototype.findLastIndex.call(arrayLike, (x) => Number.isInteger(x))); // 2
 }
 
 // Array.prototype.flat()
@@ -1050,11 +1015,7 @@ if (false) {
 	// [0, 1, 2, 3, 4]
 
 	// Sequence generator function (commonly referred to as "range", e.g. Clojure, PHP, etc.)
-	const range = (start, stop, step) =>
-		Array.from(
-			{ length: (stop - start) / step + 1 },
-			(_, i) => start + i * step,
-		);
+	const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + i * step);
 
 	// Generate numbers range 0..4
 
@@ -1066,10 +1027,7 @@ if (false) {
 	console.log("🚀 ~ file: array.js:1065 ~ range(1, 10, 2):", range(1, 10, 2));
 	// [1, 3, 5, 7, 9]
 
-	console.log(
-		"🚀 ~ file: array.js:1069 ~ range(1_000_000, 20_000, 6_000_000):",
-		range(1_000_000, 6_000_000, 20_000),
-	);
+	console.log("🚀 ~ file: array.js:1069 ~ range(1_000_000, 20_000, 6_000_000):", range(1_000_000, 6_000_000, 20_000));
 
 	const letters = range("A".charCodeAt(0), "Z".charCodeAt(0), 1).map((x) => [
 		String.fromCharCode(x),
@@ -1122,9 +1080,9 @@ if (false) {
 	).then((array) => console.log(array));
 	// [[1, 2], [3, 4]]
 
-	Array.fromAsync(
-		new Set([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]),
-	).then((array) => console.log(array));
+	Array.fromAsync(new Set([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)])).then((array) =>
+		console.log(array),
+	);
 	// [1, 2, 3]
 
 	Array.fromAsync({
@@ -1139,10 +1097,9 @@ if (false) {
 		return new Promise((resolve) => setTimeout(() => resolve(v), 100));
 	}
 
-	Array.fromAsync(
-		[delayedValue(1), delayedValue(2), delayedValue(3)],
-		(element) => delayedValue(element * 2),
-	).then((array) => console.log(array));
+	Array.fromAsync([delayedValue(1), delayedValue(2), delayedValue(3)], (element) => delayedValue(element * 2)).then(
+		(array) => console.log(array),
+	);
 	// [2, 4, 6]
 
 	function* makeAsyncIterable() {
@@ -1258,14 +1215,7 @@ if (false) {
 	const res4 = array.indexOf(2, -1); // -1
 	const res5 = array.indexOf(2, -3); // 0
 
-	console.log(
-		"🚀 ~ file: array.js:1263 ~ res1,res2,res3,res4,res5:",
-		res1,
-		res2,
-		res3,
-		res4,
-		res5,
-	);
+	console.log("🚀 ~ file: array.js:1263 ~ res1,res2,res3,res4,res5:", res1, res2, res3, res4, res5);
 
 	const array1 = [NaN];
 	console.log("🚀 ~ array1.indexOf(NaN):", array1.indexOf(NaN));
@@ -1329,20 +1279,14 @@ if (false) {
 	Array.isArray(new Array());
 	console.log("🚀 ~ Array.isArray(new Array()):", Array.isArray(new Array()));
 	Array.isArray(new Array("a", "b", "c", "d"));
-	console.log(
-		"🚀 ~ Array.isArray(new Array('a', 'b', 'c', 'd')):",
-		Array.isArray(new Array("a", "b", "c", "d")),
-	);
+	console.log("🚀 ~ Array.isArray(new Array('a', 'b', 'c', 'd')):", Array.isArray(new Array("a", "b", "c", "d")));
 	Array.isArray(new Array(3));
 	console.log("🚀 ~ Array.isArray(new Array(3)):", Array.isArray(new Array(3)));
 	// Little known fact: Array.prototype itself is an array:
 	Array.isArray(Array.prototype);
 	Array.isArray(Array);
 	console.log("🚀 ~ Array.isArray(Array):", Array.isArray(Array));
-	console.log(
-		"🚀 ~ Array.isArray(Array.prototype):",
-		Array.isArray(Array.prototype),
-	);
+	console.log("🚀 ~ Array.isArray(Array.prototype):", Array.isArray(Array.prototype));
 
 	// all following calls return false
 	Array.isArray();
@@ -1362,17 +1306,11 @@ if (false) {
 	Array.isArray(false);
 	console.log("🚀 ~ Array.isArray(false):", Array.isArray(false));
 	Array.isArray(new Uint8Array(32));
-	console.log(
-		"🚀 ~ Array.isArray(new Uint8Array(32)):",
-		Array.isArray(new Uint8Array(32)),
-	);
+	console.log("🚀 ~ Array.isArray(new Uint8Array(32)):", Array.isArray(new Uint8Array(32)));
 	// This is not an array, because it was not created using the
 	// array literal syntax or the Array constructor
 	Array.isArray({ __proto__: Array.prototype });
-	console.log(
-		"🚀 ~ Array.isArray({ __proto__: Array.prototype }):",
-		Array.isArray({ __proto__: Array.prototype }),
-	);
+	console.log("🚀 ~ Array.isArray({ __proto__: Array.prototype }):", Array.isArray({ __proto__: Array.prototype }));
 
 	const iframe = document.createElement("iframe");
 	document.body.appendChild(iframe);
@@ -1748,9 +1686,7 @@ if (false) {
 	const initialValue = { count: 0 };
 
 	const sumWithInitial = array1.reduce(
-		(accumulator, currentValue) => (
-			(accumulator.count += currentValue), accumulator
-		),
+		(accumulator, currentValue) => ((accumulator.count += currentValue), accumulator),
 		initialValue,
 	);
 
@@ -1789,10 +1725,7 @@ if (false) {
 	var asyncPipe =
 		(...functions) =>
 		(initialValue) =>
-			functions.reduce(
-				(acc, fn) => acc.then(fn),
-				Promise.resolve(initialValue),
-			);
+			functions.reduce((acc, fn) => acc.then(fn), Promise.resolve(initialValue));
 
 	// asyncPipe can also be implemented using async/await, which better demonstrates its similarity with pipe:
 	var asyncPipe =
@@ -1800,9 +1733,7 @@ if (false) {
 		(initialValue) =>
 			functions.reduce(
 				async (acc, fn) =>
-					acc instanceof Promise
-						? (console.log("async"), fn(await acc))
-						: (console.log("sync"), fn(acc)),
+					acc instanceof Promise ? (console.log("async"), fn(await acc)) : (console.log("sync"), fn(acc)),
 				initialValue,
 			);
 
@@ -1866,9 +1797,7 @@ if (false) {
 		[4, 5],
 	];
 
-	const result = array1.reduceRight((accumulator, currentValue) =>
-		accumulator.concat(currentValue),
-	);
+	const result = array1.reduceRight((accumulator, currentValue) => accumulator.concat(currentValue));
 
 	console.log(result); // Expected output: Array [4, 5, 2, 3, 0, 1]
 
@@ -1878,10 +1807,7 @@ if (false) {
 	const waterfall =
 		(...functions) =>
 		(callback, ...args) =>
-			functions.reduceRight(
-				(composition, fn) => (...results) => fn(composition, ...results),
-				callback,
-			)(...args);
+			functions.reduceRight((composition, fn) => (...results) => fn(composition, ...results), callback)(...args);
 
 	const randInt = (max) => Math.floor(Math.random() * max);
 
@@ -2149,9 +2075,7 @@ if (false) {
 		3: 3, // ignored by some() since length is 3
 	};
 
-	console.log(
-		Array.prototype.some.call(arrayLike, (x) => typeof x === "number"),
-	); // false
+	console.log(Array.prototype.some.call(arrayLike, (x) => typeof x === "number")); // false
 }
 
 // Array.prototype.sort()
@@ -2217,14 +2141,7 @@ if (false) {
 		return 0;
 	});
 
-	const items1 = [
-		"réservé",
-		"premier",
-		"communiqué",
-		"café",
-		"adieu",
-		"éclair",
-	];
+	const items1 = ["réservé", "premier", "communiqué", "café", "adieu", "éclair"];
 	items1.sort((a, b) => a.localeCompare(b));
 	// items1 is ['adieu', 'café', 'communiqué', 'éclair', 'premier', 'réservé']
 

@@ -63,9 +63,7 @@ if (false) {
 	// call the function
 	console.log("🚀 ~ sumOfArray([1, 2, 3, 4]):", sumOfArray([1, 2, 3, 4])); // 10
 
-	const construct = new Function(
-		"const sumArr = (arr) => arr.reduce((p,c)=> p +c); return sumArr",
-	);
+	const construct = new Function("const sumArr = (arr) => arr.reduce((p,c)=> p +c); return sumArr");
 	const arrSum = construct();
 	console.log("🚀 ~ arrSum([1, 2, 3, 4]):", arrSum([1, 2, 3, 4]));
 
@@ -78,9 +76,7 @@ if (false) {
 	findLargestNumber.call({}).call({}, [2, 4, 1, 8, 5]); // 8
 
 	// Function declarations do not require a return statement
-	const sayHello = new Function(
-		"return function (name) { return `Hello, ${name}` }",
-	)();
+	const sayHello = new Function("return function (name) { return `Hello, ${name}` }")();
 
 	// call the function
 	sayHello("world"); // Hello, world
@@ -196,10 +192,7 @@ if (false) {
 	console.log("🚀 ~ ((a) => {}).length:", ((a) => {}).length);
 	console.log("🚀 ~ ((a, b) => {}).length:", ((a, b) => {}).length);
 	console.log("🚀 ~ ((...args) => {}).length:", ((...args) => {}).length);
-	console.log(
-		"🚀 ~ ((a, b = 1, c) => {}).length:",
-		((a, b = 1, c) => {}).length,
-	);
+	console.log("🚀 ~ ((a, b = 1, c) => {}).length:", ((a, b = 1, c) => {}).length);
 	// 1, only parameters before the first one with
 	// a default value are counted
 }
@@ -389,10 +382,7 @@ if (false) {
 	const foo = new Foo();
 
 	console.log("🚀 ~ foo instanceof Foo:", foo instanceof Foo);
-	console.log(
-		"🚀 ~ Foo[Symbol.hasInstance](foo):",
-		Foo[Symbol.hasInstance](foo),
-	);
+	console.log("🚀 ~ Foo[Symbol.hasInstance](foo):", Foo[Symbol.hasInstance](foo));
 
 	console.log(foo instanceof Foo === Foo[Symbol.hasInstance](foo)); // true
 
@@ -411,9 +401,7 @@ if (false) {
 // Function.prototype.apply()
 if (false) {
 	const numbers = [5, 6, 2, 3, 7];
-	const letters = Array.from({ length: 25 }, (_, i) =>
-		String.fromCharCode(i + 97),
-	);
+	const letters = Array.from({ length: 25 }, (_, i) => String.fromCharCode(i + 97));
 
 	numbers.slice(numbers[numbers.length - 1], numbers.length);
 	console.log(
@@ -478,10 +466,7 @@ if (false) {
 		const QUANTUM = 32768;
 
 		for (let i = 0; i < arr.length; i += QUANTUM) {
-			const submin = Math.min.apply(
-				null,
-				arr.slice(i, Math.min(i + QUANTUM, arr.length)),
-			);
+			const submin = Math.min.apply(null, arr.slice(i, Math.min(i + QUANTUM, arr.length)));
 			min = Math.min(submin, min);
 		}
 
@@ -635,10 +620,7 @@ if (false) {
 	// ...
 
 	slice([1, 2, 3, 4, 5], 0, 1);
-	console.log(
-		"🚀 ~ slice([1, 2, 3, 4, 5], 0, 1):",
-		slice([1, 2, 3, 4, 5], 0, 1),
-	);
+	console.log("🚀 ~ slice([1, 2, 3, 4, 5], 0, 1):", slice([1, 2, 3, 4, 5], 0, 1));
 	console.log("🚀 ~ slice([1,2,3,4,5], 2,4):", slice([1, 2, 3, 4, 5], 2, 4));
 }
 
